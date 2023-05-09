@@ -12,3 +12,6 @@
 !examples_and_tests/
 !examples_and_tests/PLS/
 !examples_and_tests/PLS/*
+!examples_and_tests/
+!examples_and_tests/FSRPDE/
+!examples_and_tests/FSRPDE/*
