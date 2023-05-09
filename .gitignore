@@ -15,3 +15,5 @@
 !examples_and_tests/
 !examples_and_tests/FSRPDE/
 !examples_and_tests/FSRPDE/*
+!examples_and_tests/FPLSR/
+!examples_and_tests/FPLSR/*
