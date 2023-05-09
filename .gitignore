@@ -1,4 +1,14 @@
 # ingnore all
 *
 
+# Formats to be avoided
+*.RData
+*.DS_Store
+
+# gitignore
 !.gitignore
+
+# Examples and tests
+!examples_and_tests/
+!examples_and_tests/PLS/
+!examples_and_tests/PLS/*
