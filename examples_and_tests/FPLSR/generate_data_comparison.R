@@ -56,7 +56,7 @@ for(i in 1:6){
   batch_size <- 50
   n_samples <- n_batches*batch_size
   
-  data <- generate_2d_data(x, y, n_samples, i, 0.95)
+  data <- generate_2d_data(x, y, 81, n_samples, i, 0.95)
   
   # Response
   Y <- data[["Y"]]
@@ -105,14 +105,21 @@ for(i in 1:6){
     write.csv(Y_batch, paste(sub_test_dir, "/Y_",j,".csv", sep = ''))
     write.csv(Y_hat_batch, paste(sub_test_dir, "/Y_hat_",j,".csv", sep = ''))
     
+    # Field
+    TT <- as.matrix(results_fpls_fem[["TT"]])
+    C <- as.matrix(results_fpls_fem[["C"]])
+    K <- dim(C)[1]
+    X_mean <- matrix(as.matrix(results_fpls_fem[["X_mean"]]), ncol = K, nrow = batch_size, byrow = TRUE)
+    X_hat_batch <- TT %*% t(C) + X_mean
+    write.csv(X_hat_batch, paste(sub_test_dir, "/X_hat_",j,".csv", sep = ''))
+    
     # Coefficient function
     B_hat_batch <- results_fpls_fem[["coefficient_function"]]
     write.csv(B_hat_batch, paste(sub_test_dir, "/B_hat_",j,".csv", sep = ''))
     
     # FPLS quanities of interest
     # W <- as.matrix(results_fpls_fem[["W"]])
-    # TT <- as.matrix(results_fpls_fem[["TT"]])
-    # C <- as.matrix(results_fpls_fem[["C"]])
+    
     # D <- as.matrix(results_fpls_fem[["D"]])
     # write.csv(W, paste(sub_test_dir, "/W.csv", sep = ''))
     # write.csv(TT, paste(sub_test_dir, "/T.csv", sep = ''))

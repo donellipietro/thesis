@@ -33,9 +33,16 @@ if (!file.exists(tests_dir)){
 dir.create(tests_dir)
 }
 
+# Dimensions
+L <- 1;
+K <- 60*60;
+S1 <- K;
+S2 <- 9*9;
+N <- 50;
+
 # Grid
-x <- seq(0, 1, length.out = 60)
-y <- seq(0, 1, length.out = 60)
+x <- seq(0, 1, length.out = sqrt(K))
+y <- seq(0, 1, length.out = sqrt(K))
 
 # Directories
 test_dirs <- c()
@@ -48,7 +55,7 @@ for(i in 1:5){
 
 for(i in 1:6){
 
-  data <- generate_2d_data(x, y, 60, i, 0.95)
+  data <- generate_2d_data(x, y, S2, N, i, 0.95)
   
   # Response
   Y <- data[["Y"]]
@@ -97,31 +104,40 @@ for(i in 1:6){
   results_fpls_fem <- r1fpls_fem(X_nodes, Y, ncomp = 3, center = TRUE,
                                  basisobj = FEM_basis, penalty = 10,
                                  verbose = TRUE )
+  
+  # FPLS quanities of interest
+  W <- as.matrix(results_fpls_fem[["W"]])
+  V <- as.matrix(results_fpls_fem[["V"]])
+  TT <- as.matrix(results_fpls_fem[["TT"]])
+  C <- as.matrix(results_fpls_fem[["C"]])
+  D <- as.matrix(results_fpls_fem[["D"]])
+  write.csv(V, paste(sub_test_dir, "/V.csv", sep = ''))
+  write.csv(W, paste(sub_test_dir, "/W.csv", sep = ''))
+  write.csv(TT, paste(sub_test_dir, "/T.csv", sep = ''))
+  write.csv(C, paste(sub_test_dir, "/C.csv", sep = ''))
+  write.csv(D, paste(sub_test_dir, "/D.csv", sep = ''))
 
   # X field
+  X_mean <- as.matrix(results_fpls_fem[["X_mean"]], ncol = K, nrow = 1, byrow = TRUE)
+  X_hat <- TT %*% t(C) + matrix(X_mean, ncol = K, nrow = N, byrow = TRUE)
   write.csv(X_clean_nodes, paste(sub_test_dir, "/X_clean.csv", sep = ''))
   write.csv(X_nodes, paste(sub_test_dir, "/X.csv", sep = ''))
+  write.csv(X_hat, paste(sub_test_dir, "/X_hat.csv", sep = ''))
+  write.csv(X_mean, paste(sub_test_dir, "/X_mean.csv", sep = ''))
+  
 
   # Response
+  Y_mean <- as.matrix(results_fpls_fem[["Y_mean"]], ncol = L, nrow = 1, byrow = TRUE)
   Y_hat <- as.matrix(results_fpls_fem[["fitted.values"]])
   write.csv(Y_clean, paste(sub_test_dir, "/Y_clean.csv", sep = ''))
   write.csv(Y, paste(sub_test_dir, "/Y.csv", sep = ''))
   write.csv(Y_hat, paste(sub_test_dir, "/Y_hat.csv", sep = ''))
+  write.csv(Y_mean, paste(sub_test_dir, "/Y_mean.csv", sep = ''))
   
   # Coefficient function
   B_hat <- results_fpls_fem[["coefficient_function"]]
   write.csv(B, paste(sub_test_dir, "/B.csv", sep = ''))
   write.csv(B_hat, paste(sub_test_dir, "/B_hat.csv", sep = ''))
-  
-  # FPLS quanities of interest
-  W <- as.matrix(results_fpls_fem[["W"]])
-  TT <- as.matrix(results_fpls_fem[["TT"]])
-  C <- as.matrix(results_fpls_fem[["C"]])
-  D <- as.matrix(results_fpls_fem[["D"]])
-  write.csv(W, paste(sub_test_dir, "/W.csv", sep = ''))
-  write.csv(TT, paste(sub_test_dir, "/T.csv", sep = ''))
-  write.csv(C, paste(sub_test_dir, "/C.csv", sep = ''))
-  write.csv(D, paste(sub_test_dir, "/D.csv", sep = ''))
   
   
   ## |||||||||||

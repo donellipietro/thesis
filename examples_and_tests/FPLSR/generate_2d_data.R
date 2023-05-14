@@ -1,4 +1,4 @@
-generate_2d_data <- function(x, y, num_samples = 100, beta_num = 3, Rsq = 0.95) {
+generate_2d_data <- function(x, y, S2 = 100, num_samples = 100, beta_num = 3, Rsq = 0.95) {
   
   set.seed(0)
   
@@ -13,8 +13,9 @@ generate_2d_data <- function(x, y, num_samples = 100, beta_num = 3, Rsq = 0.95) 
   R0 <- fdaPDE:::CPP_get.FEM.Mass.Matrix(FEMbasis = FEM_basis)
   
   # Subgrid
-  x_sub <- seq(0.1, 0.9, length.out = 9)
-  y_sub <- seq(0.1, 0.9, length.out = 9)
+  step = 1/(sqrt(S2)+1);
+  x_sub <- seq(step, 1-step, length.out = sqrt(S2))
+  y_sub <- seq(step, 1-step, length.out = sqrt(S2))
   locations_sub <- expand.grid(x = x_sub, y = y_sub)
   
   # Room for data:
