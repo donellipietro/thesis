@@ -4,6 +4,7 @@
 # Formats to be avoided
 *.RData
 *.DS_Store
+.Rhistory
 
 # gitignore
 !.gitignore

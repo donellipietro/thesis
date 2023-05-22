@@ -54,6 +54,11 @@ plot_results <- function(path, at_nodes, plot_locations) {
 # Results visualization ----
 # ||||||||||||||||||||||||||
 
+path_images <- "images/"
+if (!file.exists(path_images)){
+  dir.create(path_images)
+}
+
 ## Test 1 ----
 ## |||||||||||
 
@@ -64,8 +69,10 @@ plot_results <- function(path, at_nodes, plot_locations) {
 # BC:           no
 # order FE:     1
 
-test_dir = paste(tests_dir, "2D_test1/", sep = '') 
+test_dir = paste(tests_dir, "2D_test1/", sep = '')
+# jpeg(file=paste(path_images, "test1.jpg", sep = ''))
 plot_results(test_dir, at_nodes = TRUE, plot_locations = FALSE)
+# dev.off();
 
 ## Test 2 ----
 ## |||||||||||
@@ -78,7 +85,9 @@ plot_results(test_dir, at_nodes = TRUE, plot_locations = FALSE)
 # order FE:     1
 
 test_dir = paste(tests_dir, "2D_test2/", sep = '') 
+jpeg(file=paste(path_images, "test2.jpg", sep = ''))
 plot_results(test_dir, at_nodes = FALSE, plot_locations = FALSE)
+dev.off();
 
 ## Test 3 ----
 ## |||||||||||
@@ -91,7 +100,10 @@ plot_results(test_dir, at_nodes = FALSE, plot_locations = FALSE)
 # order FE:     1
 
 test_dir = paste(tests_dir, "2D_test3/", sep = '') 
+# jpeg(file=paste(path_images, "test3.jpg", sep = ''))
 plot_results(test_dir, at_nodes = FALSE, plot_locations = TRUE)
+# dev.off();
+
 
 ## Test 4 ----
 ## |||||||||||
@@ -104,5 +116,7 @@ plot_results(test_dir, at_nodes = FALSE, plot_locations = TRUE)
 # order FE:     1
 
 test_dir = paste(tests_dir, "2D_test4/", sep = '') 
+# jpeg(file=paste(path_images, "test4.jpg", sep = ''))
 plot_results(test_dir, at_nodes = FALSE, plot_locations = TRUE)
+# dev.off();
 

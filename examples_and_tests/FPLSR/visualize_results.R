@@ -11,13 +11,32 @@ graphics.off()
 # ||||||||||||||||||||||||||
 
 # Where to get the data
-tests_dir = "../../fdaPDE/test/data/models/FPLSR/2D_test0/"
-at_locations = FALSE
-is_test0 = TRUE
+test_name <- "2D_test4"
+tests_dir <- paste("../../fdaPDE/test/data/models/FPLSR/",test_name,"/", sep = '')
+at_locations <- TRUE
+is_test0 <- FALSE
 
-# ||||||||||||||
-# Functions ----
-# ||||||||||||||
+
+# ||||||||||||
+# Results ----
+# ||||||||||||
+
+path_images <- "images/"
+if (!file.exists(path_images)){
+  dir.create(path_images)
+}
+path_images_test_suite <- paste(path_images, test_name, "/", sep = '')
+if (!file.exists(path_images_test_suite)){
+  dir.create(path_images_test_suite)
+}
+for(i in 1:6){
+  path_images_test <- paste(path_images_test_suite, "test", i, sep = '')
+  if (!file.exists(path_images_test)){
+    dir.create(path_images_test)
+  }
+}
+
+
 
 if(!is_test0){
   result <- read.csv(paste(tests_dir,"errors.csv", sep = ''), header=TRUE)
@@ -25,7 +44,10 @@ if(!is_test0){
 }
 
 for(i in 1:6){
-  # jpeg(file=paste("comparison/test",i,"/Y.jpg", sep = ''))
+  
+  path_images_test <- paste(path_images_test_suite, "test", i, "/", sep = '')
+  # jpeg(file=paste(path_images_test, "Y.jpg", sep = ''))
+  
   par(mfrow = c(1,1))
   
   path <- paste(tests_dir, "test", i, "/", sep = '')
@@ -47,7 +69,9 @@ for(i in 1:6){
 
 if(!is_test0){
   for(i in 1:6){
-    # jpeg(file=paste("comparison/test",i,"/X.jpg", sep = ''))
+    
+    path_images_test <- paste(path_images_test_suite, "test", i, "/", sep = '')
+    # jpeg(file=paste(path_images_test, "X.jpg", sep = ''))
     
     path <- paste(tests_dir, "test", i, "/", sep = '')
     
@@ -76,7 +100,9 @@ if(!is_test0){
 }
 
 for(i in 1:6){
-  # jpeg(file=paste("comparison/test",i,"/B.jpg", sep = ''))
+  
+  path_images_test <- paste(path_images_test_suite, "test", i, "/", sep = '')
+  # jpeg(file=paste(path_images_test, "B.jpg", sep = ''))
   
   path <- paste(tests_dir, "test", i, "/", sep = '')
 
