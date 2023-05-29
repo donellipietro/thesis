@@ -82,6 +82,13 @@ Y6 = matrix(read.csv(paste(path2, "Y.csv", sep = ''), header = TRUE)[,2], ncol =
 Y = cbind(Y1)
 Y.labs = c("Y1")
 
+## Dimensions ----
+## |||||||||||||||
+
+N <- dim(X)[1]
+S <- dim(X)[2]
+L <- dim(Y)[2]
+
 
 ## De-trending ----
 ## |||||||||||||||
@@ -95,14 +102,6 @@ Y.mean = attr(Yc, "scaled:center")
 # Mean values
 Y.MEAN = matrix(Y.mean, ncol = L, nrow = N, byrow = TRUE)
 X.MEAN = matrix(X.mean, ncol = S, nrow = N, byrow = TRUE)
-
-
-## Dimensions ----
-## |||||||||||||||
-
-N <- dim(X)[1]
-S <- dim(X)[2]
-L <- dim(Y)[2]
 
 
 ## Plot ----
@@ -181,7 +180,7 @@ image(matrix(as.numeric(X_hat_simpls[1,]), 60, 60), main = "X_hat")
 plot_prediction(Y_hat_simpls, Y, Y.labs)
 
 par(mfrow = c(1, 1))
-barplot(h_simpls, main = "Leverages")
+barplot(h_simpls, main = "Leverages", xlab = "Samples")
 
 par(mfrow = c(1, 2))
 plot(cumsum(varY_simpls), type = "b",
