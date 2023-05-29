@@ -16,7 +16,7 @@ tests_dir <- "2D_test_comparison/"
 n_batches <- 20
 n_tests <- 6
 
-TEST <- FALSE
+TEST <- TRUE
 # TRUE: test error is computed
 # FALSE: training erro is computed
 
@@ -119,46 +119,57 @@ if(TEST){
   load(paste(tests_dir, "errors_train.RData", sep = ''))
 }
   
+tests_to_be_shown <- 1:7
+cols_to_be_shown <- rep(1:7 %in% tests_to_be_shown, n_tests)
+
+colors <- c("red", "orange", "purple", "blue", "lightblue", "darkgreen", "green")
+names <- c("Harld R", "Harold C++",
+           "fPLSR no smoothing", "fPLSR smoothing regression", "fPLSR smoothing reg. + init.", 
+           "M-PLSR (NIPALS)", "M_PLSR (SIMPLS)")
+
 #jpeg(file=paste(path_images, "comparison_Y.jpg", sep = ''))
 par(mfrow = c(1,1))
-boxplot(errors_Y, xlab = "Tests", ylab = "MSE",
-        col = c("red", "orange", "purple", "blue", "lightblue", "darkgreen", "green"),
+boxplot(errors_Y[, cols_to_be_shown], xlab = "Tests", ylab = "MSE",
+        col = colors[tests_to_be_shown],
         main = paste("MSE", type, "- Y"), xaxt = 'n')
-axis(1, at=(1:n_tests)*(n_test_options+1)-(n_test_options)/2, labels=1:6)
-#legend("topright", c("Harold", "fPLSR"), col = c("red", "blue"), pch = c(15, 15))
-abline(v = (0:n_tests)*(n_test_options+1)+1/2, lty = 2, col = "grey")
+axis(1, at=(1:n_tests)*(length(tests_to_be_shown))-(length(tests_to_be_shown)-1)/2, labels=1:6)
+abline(v = (0:n_tests)*(length(tests_to_be_shown))+1/2, lty = 2, col = "grey")
 grid()
 #dev.off()
 
 #jpeg(file=paste(path_images, "comparison_X.jpg", sep = ''))
-boxplot(errors_X, xlab = "Tests", ylab = "MSE",
-        col = c("red", "orange", "purple", "blue", "lightblue", "darkgreen", "green"),
+boxplot(errors_X[,cols_to_be_shown], xlab = "Tests", ylab = "MSE",
+        col = colors[tests_to_be_shown],
         main = paste("MSE", type, "- X"), xaxt = 'n')
-axis(1, at=(1:n_tests)*(n_test_options+1)-(n_test_options)/2, labels=1:6)
-abline(v = (0:n_tests)*(n_test_options+1)+1/2, lty = 2, col = "grey")
-# legend("topright", c("Harold", "fPLSR"), col = c("red", "blue"), pch = c(15, 15))
+axis(1, at=(1:n_tests)*(length(tests_to_be_shown))-(length(tests_to_be_shown)-1)/2, labels=1:6)
+abline(v = (0:n_tests)*(length(tests_to_be_shown))+1/2, lty = 2, col = "grey")
 grid()
 #dev.off()
 
 #jpeg(file=paste(path_images, "comparison_X_zoom.jpg", sep = ''))
-boxplot(errors_X, xlab = "Tests", ylab = "MSE", col = c("red", "orange", "purple", "blue", "lightblue", "darkgreen", "green"), main = "MSE - X", xaxt = 'n',
-        ylim = c(0.036, 0.0375))
-axis(1, at=(1:n_tests)*(n_test_options+1)-(n_test_options)/2, labels=1:6)
-abline(v = (0:n_tests)*(n_test_options+1)+1/2, lty = 2, col = "grey")
-# legend("topright", c("Harold", "fPLSR"), col = c("red", "blue"), pch = c(15, 15))
+boxplot(errors_X[,cols_to_be_shown], xlab = "Tests", ylab = "MSE",
+        col = colors[tests_to_be_shown], 
+        main = "MSE - X (zoom)", xaxt = 'n',
+        ylim = c(0.003, 0.004))
+axis(1, at=(1:n_tests)*(length(tests_to_be_shown))-(length(tests_to_be_shown)-1)/2, labels=1:6)
+abline(v = (0:n_tests)*(length(tests_to_be_shown))+1/2, lty = 2, col = "grey")
 grid()
 #dev.off()
 
 if(TEST){
   #jpeg(file=paste(path_images, "comparison_B.jpg", sep = ''))
   par(mfrow = c(1,1))
-  boxplot((errors_B), xlab = "Tests", ylab = "MSE", col = c("red", "orange", "purple", "blue", "lightblue", "darkgreen", "green"), main = "MSE - B", xaxt = 'n')
-  axis(1, at=(1:n_tests)*(n_test_options+1)-(n_test_options)/2, labels=1:6)
-  abline(v = (0:n_tests)*(n_test_options+1)+1/2, lty = 2, col = "grey")
-  # legend("topright", c("Harold", "fPLSR"), col = c("red", "blue"), pch = c(15, 15))
+  boxplot((errors_B[,cols_to_be_shown]), xlab = "Tests", ylab = "MSE",
+          col = colors[tests_to_be_shown], 
+          main = "MSE - B", xaxt = 'n')
+  axis(1, at=(1:n_tests)*(length(tests_to_be_shown))-(length(tests_to_be_shown)-1)/2, labels=1:6)
+  abline(v = (0:n_tests)*(length(tests_to_be_shown))+1/2, lty = 2, col = "grey")
   grid()
   #dev.off()
 }
+
+plot.new()
+legend("center", names[tests_to_be_shown], col = colors[tests_to_be_shown], pch = 15)
 
 
 # Test vs train
