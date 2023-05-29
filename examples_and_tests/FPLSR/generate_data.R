@@ -67,7 +67,6 @@ for(i in 1:6){
   # At nodes
   X_nodes <- data[["X_nodes"]]
   X_clean_nodes <- data[["X_clean_nodes"]]
-  X_clean <- data[["X_clean"]]
   
   # At locations (#locations == #nodes)
   locations <- data[["locations"]]

@@ -1,11 +1,6 @@
 # ingnore all
 *
 
-# Formats to be avoided
-*.RData
-*.DS_Store
-.Rhistory
-
 # gitignore
 !.gitignore
 
@@ -18,3 +13,8 @@
 !examples_and_tests/FSRPDE/*
 !examples_and_tests/FPLSR/
 !examples_and_tests/FPLSR/*
+
+# Formats to be avoided
+*.RData
+*.DS_Store
+.Rhistory

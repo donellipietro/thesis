@@ -17,7 +17,7 @@ graphics.off()
 # ||||||||||||||
 
 load("PLSR.RData")
-load("PLSR_star.RData")
+# load("PLSR_star.RData")
 
 
 plot_prediction <- function(Y_hat, Y, N, Y.labs) {
@@ -165,7 +165,7 @@ grid()
 # Partial Least Squares Regression - PLSR ----
 # ||||||||||||||||||||||||||||||||||||||||||||
 
-plsr <- PLSR(Xc, Yc, 2)
+plsr <- PLSR(X, Y, 2, TRUE)
 
 W = plsr[["W"]]
 V = plsr[["V"]]
@@ -390,7 +390,6 @@ Y_hat_2 <- Xc %*% W %*% solve(t(C) %*% W, B %*% t(V)) + Y.MEAN
 plot_prediction(Y_hat_2, Y, N, Y.labs)
 
 sum((Y-Y_hat_2)^2)/N
-
 
 # # ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
 # # Partial Least Squares Regression no deflation - PLSR* ----

@@ -11,9 +11,14 @@ graphics.off()
 # ||||||||||||||||||||||||||
 
 # Where to get the data
-tests_dir = "../../fdaPDE/test/data/models/FPLSR/2D_test_comparison/"
+# tests_dir = "../../fdaPDE/test/data/models/FPLSR/2D_test_comparison/"
+tests_dir <- "2D_test_comparison/"
 n_batches <- 20
 n_tests <- 6
+
+TEST <- FALSE
+# TRUE: test error is computed
+# FALSE: training erro is computed
 
 # ||||||||||||
 # Results ----
@@ -24,7 +29,16 @@ if (!file.exists(path_images)){
   dir.create(path_images)
 }
 
-test_name_option_vect <- c("hcpp", "sr", "sri")
+# Legend:
+# - 0: Harold R
+# - hcoo: Harold c++
+# - ns: No smoothing at all (Only diff with H. is R0)
+# - sr: Smoothing only in regression
+# - sri: Smoothing in the estimation of the mean and in regression
+# - PLS: Multivataite PLS (NIPALS algorithm)
+# - SIMPLS: Multivataite PLS (SIMPLS algorithm)
+
+test_name_option_vect <- c("hcpp", "ns", "sr", "sri", "PLS", "SIMPLS")
 n_test_options <- length(test_name_option_vect)
 
 errors_Y <- matrix(0, nrow = n_batches, ncol = (n_test_options+1)*n_tests)
@@ -44,19 +58,29 @@ for(i in 1:n_tests){
     
   for(j in 1:n_batches){
       
-    Y_clean <- read.csv(paste(path,"Y_clean_", j, ".csv", sep = ''), header = TRUE)[,2]
+    if(TEST)
+      Y_clean <- read.csv(paste(path,"Y_clean_", j, ".csv", sep = ''), header = TRUE)[,2]
+    else
+      Y_clean <- read.csv(paste(path,"Y_", j, ".csv", sep = ''), header = TRUE)[,2]
+    
     batch_size = length(Y_clean)
     Y_hat_harold <- read.csv(paste(path,"Y_hat_", j, ".csv", sep = ''), header = TRUE)[,2]
     errors_Y[j, (n_test_options+1)*i - n_test_options] <- sum((Y_clean-Y_hat_harold)^2)/batch_size
     
-    X_clean <- read.csv(paste(path,"X_clean_", j, ".csv", sep = ''), header = TRUE)[,2]
-    X_hat_harold <- read.csv(paste(path,"X_hat_", j, ".csv", sep = ''), header = TRUE)[,2]
-    errors_X[j, (n_test_options+1)*i - n_test_options] <- sum((X_clean-X_hat_harold)^2)/n_nodes
+    if(TEST)
+      X_clean <- read.csv(paste(path,"X_clean_", j, ".csv", sep = ''), header = TRUE)[,-1]
+    else
+      X_clean <- read.csv(paste(path,"X_", j, ".csv", sep = ''), header = TRUE)[,-1]
     
-    B_hat_harold <- read.csv(paste(path,"B_hat_", j, ".csv", sep = ''), header = TRUE)[,2]
-    errors_B[j, (n_test_options+1)*i - n_test_options] <- sum((B-B_hat_harold)^2)/n_nodes
-    errors_B_min[j, (n_test_options+1)*i - n_test_options] <- min(abs(B-B_hat_harold))
-    errors_B_max[j, (n_test_options+1)*i - n_test_options] <- max(abs(B-B_hat_harold))
+    X_hat_harold <- read.csv(paste(path,"X_hat_", j, ".csv", sep = ''), header = TRUE)[,-1]
+    errors_X[j, (n_test_options+1)*i - n_test_options] <- sum((X_clean-X_hat_harold)^2)/(n_nodes*batch_size)
+    
+    if(TEST){
+      B_hat_harold <- read.csv(paste(path,"B_hat_", j, ".csv", sep = ''), header = TRUE)[,2]
+      errors_B[j, (n_test_options+1)*i - n_test_options] <- sum((B-B_hat_harold)^2)/n_nodes
+      # errors_B_min[j, (n_test_options+1)*i - n_test_options] <- min(abs(B-B_hat_harold))
+      # errors_B_max[j, (n_test_options+1)*i - n_test_options] <- max(abs(B-B_hat_harold))
+    }
       
     for(t in 1:n_test_options){
 
@@ -67,14 +91,17 @@ for(i in 1:n_tests){
       errors_Y[j, (n_test_options+1)*i - n_test_options + t] <- sum((Y_clean-Y_hat_test)^2)/batch_size
       
       # X
-      X_hat_test <- read.csv(paste(path,"results/X_hat_", test_name_option, "_", j, ".csv", sep = ''), header = FALSE)$V1
-      errors_X[j, (n_test_options+1)*i - n_test_options + t] <- sum((X_clean-X_hat_test)^2)/n_nodes
+      X_hat_test <- read.csv(paste(path,"results/X_hat_", test_name_option, "_", j, ".csv", sep = ''), header = FALSE)
+      errors_X[j, (n_test_options+1)*i - n_test_options + t] <- sum((X_clean-X_hat_test)^2)/(n_nodes*batch_size)
 
       # B
-      B_hat_test <- read.csv(paste(path,"results/B_hat_", test_name_option, "_", j, ".csv", sep = ''), header = FALSE)$V1
-      errors_B[j, (n_test_options+1)*i - n_test_options + t] <- sum((B-B_hat_test)^2)/n_nodes
-      errors_B_min[j, (n_test_options+1)*i- n_test_options + t] <- min(abs(B-B_hat_test))
-      errors_B_max[j, (n_test_options+1)*i- n_test_options + t] <- max(abs(B-B_hat_test))
+      if(TEST){
+        B_hat_test <- read.csv(paste(path,"results/B_hat_", test_name_option, "_", j, ".csv", sep = ''), header = FALSE)[,1]
+        errors_B[j, (n_test_options+1)*i - n_test_options + t] <- sum((B-B_hat_test)^2)/n_nodes
+        # errors_B_min[j, (n_test_options+1)*i- n_test_options + t] <- min(abs(B-B_hat_test))
+        # errors_B_max[j, (n_test_options+1)*i- n_test_options + t] <- max(abs(B-B_hat_test))
+      }
+      
 
     }
     
@@ -82,38 +109,83 @@ for(i in 1:n_tests){
   
 }
 
-jpeg(file=paste(path_images, "comparison_Y.jpg", sep = ''))
+if(TEST){
+  type = ""
+  save(errors_Y, errors_X, errors_B, file = paste(tests_dir, "errors_test.RData", sep = ''))
+  load(paste(tests_dir, "errors_test.RData", sep = ''))
+} else{
+  type = "train"
+  save(errors_Y, errors_X, errors_B, file = paste(tests_dir, "errors_train.RData", sep = ''))
+  load(paste(tests_dir, "errors_train.RData", sep = ''))
+}
+  
+#jpeg(file=paste(path_images, "comparison_Y.jpg", sep = ''))
 par(mfrow = c(1,1))
-boxplot(errors_Y, xlab = "Tests", ylab = "MSE", col = c("red", "orange", "blue", "lightblue"), main = "MSE - Y", xaxt = 'n')
+boxplot(errors_Y, xlab = "Tests", ylab = "MSE",
+        col = c("red", "orange", "purple", "blue", "lightblue", "darkgreen", "green"),
+        main = paste("MSE", type, "- Y"), xaxt = 'n')
 axis(1, at=(1:n_tests)*(n_test_options+1)-(n_test_options)/2, labels=1:6)
 #legend("topright", c("Harold", "fPLSR"), col = c("red", "blue"), pch = c(15, 15))
+abline(v = (0:n_tests)*(n_test_options+1)+1/2, lty = 2, col = "grey")
 grid()
-dev.off()
+#dev.off()
 
-jpeg(file=paste(path_images, "comparison_B.jpg", sep = ''))
-par(mfrow = c(1,1))
-boxplot((errors_B), xlab = "Tests", ylab = "MSE", col = c("red", "orange", "blue", "lightblue"), main = "MSE - B", xaxt = 'n')
+#jpeg(file=paste(path_images, "comparison_X.jpg", sep = ''))
+boxplot(errors_X, xlab = "Tests", ylab = "MSE",
+        col = c("red", "orange", "purple", "blue", "lightblue", "darkgreen", "green"),
+        main = paste("MSE", type, "- X"), xaxt = 'n')
 axis(1, at=(1:n_tests)*(n_test_options+1)-(n_test_options)/2, labels=1:6)
+abline(v = (0:n_tests)*(n_test_options+1)+1/2, lty = 2, col = "grey")
 # legend("topright", c("Harold", "fPLSR"), col = c("red", "blue"), pch = c(15, 15))
 grid()
-dev.off()
+#dev.off()
 
-jpeg(file=paste(path_images, "comparison_X.jpg", sep = ''))
-boxplot(errors_X, xlab = "Tests", ylab = "MSE", col = c("red", "orange", "blue", "lightblue"), main = "MSE - X", xaxt = 'n')
+#jpeg(file=paste(path_images, "comparison_X_zoom.jpg", sep = ''))
+boxplot(errors_X, xlab = "Tests", ylab = "MSE", col = c("red", "orange", "purple", "blue", "lightblue", "darkgreen", "green"), main = "MSE - X", xaxt = 'n',
+        ylim = c(0.036, 0.0375))
 axis(1, at=(1:n_tests)*(n_test_options+1)-(n_test_options)/2, labels=1:6)
+abline(v = (0:n_tests)*(n_test_options+1)+1/2, lty = 2, col = "grey")
 # legend("topright", c("Harold", "fPLSR"), col = c("red", "blue"), pch = c(15, 15))
 grid()
-dev.off()
+#dev.off()
 
-# boxplot(errors_B_min, xlab = "Tests", ylab = "min error", col = c("red", "orange", "blue", "lightblue"), main = "min error - B", xaxt = 'n')
-# axis(1, at=(1:n_tests)*(n_test_options+1)-(n_test_options)/2, labels=1:6)
-# # legend("topright", c("Harold", "fPLSR"), col = c("red", "blue"), pch = c(15, 15))
-# grid()
-# 
-# boxplot(errors_B_max, xlab = "Tests", ylab = "max error", col = c("red", "orange", "blue", "lightblue"), main = "max error - B", xaxt = 'n')
-# axis(1, at=(1:n_tests)*(n_test_options+1)-(n_test_options)/2, labels=1:6)
-# # legend("topright", c("Harold", "fPLSR"), col = c("red", "blue"), pch = c(15, 15))
-# grid()
+if(TEST){
+  #jpeg(file=paste(path_images, "comparison_B.jpg", sep = ''))
+  par(mfrow = c(1,1))
+  boxplot((errors_B), xlab = "Tests", ylab = "MSE", col = c("red", "orange", "purple", "blue", "lightblue", "darkgreen", "green"), main = "MSE - B", xaxt = 'n')
+  axis(1, at=(1:n_tests)*(n_test_options+1)-(n_test_options)/2, labels=1:6)
+  abline(v = (0:n_tests)*(n_test_options+1)+1/2, lty = 2, col = "grey")
+  # legend("topright", c("Harold", "fPLSR"), col = c("red", "blue"), pch = c(15, 15))
+  grid()
+  #dev.off()
+}
 
-# dev.off()
+
+# Test vs train
+load(paste(tests_dir, "errors_test.RData", sep = ''))
+errors_Y_test <- errors_Y
+errors_X_test <- errors_X
+errors_B_test <- errors_B
+load(paste(tests_dir, "errors_train.RData", sep = ''))
+errors_Y_train <- errors_Y
+errors_X_train <- errors_X
+errors_B_train <- errors_B
+
+
+temp_test = matrix(colSums(errors_Y_test)/n_batches, ncol = n_test_options+1, byrow = TRUE)
+temp_train = matrix(colSums(errors_Y_train)/n_batches, ncol = n_test_options+1, byrow = TRUE)
+
+par(mfrow = c(1,2))
+matplot(temp_train[,1:5], type = "l", lty = 2,
+      main = "Functional methods", xlab = "Test", ylab = "mean MSE")
+matplot(temp_test[,1:5], type = "l", lty = 1,  add = TRUE)
+legend("topright", c("Test", "Train"), lty = c(1, 2))
+grid()
+matplot(temp_test[,6:7], type = "l", lty = 1,
+        main = "Multivaraite methods", xlab = "Test", ylab = "mean MSE")
+matplot(temp_train[,6:7], type = "l", lty = 2,  add = TRUE)
+legend("topright", c("Test", "Train"), lty = c(1, 2))
+grid()
+
+
 

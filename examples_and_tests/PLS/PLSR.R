@@ -1,11 +1,21 @@
 # PLSR, NIPALS algorithm
 
-PLSR <- function(Xc, Yc, A) {
+PLSR <- function(X, Y, A, deflation_Y = FALSE) {
+  
+  # Centering
+  Xc = scale(X, scale = FALSE)
+  X.mean = attr(Xc, "scaled:center")
+  Yc = scale(Y, scale = FALSE)
+  Y.mean = attr(Yc, "scaled:center")
   
   # Dimensions
   N <- dim(Xc)[1]
   S <- dim(Xc)[2]
   L <- dim(Yc)[2]
+  
+  # Mean values
+  Y.MEAN = matrix(Y.mean, ncol = L, nrow = N, byrow = TRUE)
+  X.MEAN = matrix(X.mean, ncol = S, nrow = N, byrow = TRUE)
   
   # Room for solutions
   W <- matrix(0, nrow = S, ncol = A)
@@ -47,13 +57,19 @@ PLSR <- function(Xc, Yc, A) {
     
     # Deflation
     EE <- EE - TT[,i] %*% t(C[,i])
-    FF <- FF - B[i,i] * TT[,i] %*% t(V[,i])
+    if(deflation_Y == TRUE)
+      FF <- FF - B[i,i] * TT[,i] %*% t(V[,i])
     
     # Intermediate steps
     XX[[i+1]] = EE
     YY[[i+1]] = FF
     
   }
+  
+  Beta <- W %*% solve(t(C) %*% W, B %*% t(V))
+  
+  Y_hat <- Xc %*% Beta + Y.MEAN
+  X_hat <- TT %*% t(C) + X.MEAN 
   
   return(list(W = W,
               V = V,
@@ -65,7 +81,12 @@ PLSR <- function(Xc, Yc, A) {
               EE = EE,
               FF = FF,
               XX = XX,
-              YY = YY))
+              YY = YY,
+              X.mean = X.mean,
+              Y.mean = Y.mean,
+              Beta = Beta,
+              Y_hat = Y_hat,
+              X_hat = X_hat))
   
 }
 
