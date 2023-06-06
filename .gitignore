@@ -17,4 +17,10 @@
 # Formats to be avoided
 *.RData
 *.DS_Store
+*.aux
+*.fdb_latexmk
+*.fls
+*.log
+*.synctex.gz
+*.pdf
 .Rhistory
