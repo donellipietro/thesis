@@ -11,17 +11,21 @@ graphics.off()
 # ||||||||||||||||||||||||||
 
 # Where to get the data
-test_name <- "2D_test4"
-tests_dir <- paste("../../fdaPDE/test/data/models/FPLSR/",test_name,"/", sep = '')
-at_locations <- TRUE
+SIMPLS = "_SIMPLS"
+SELECTION = ""
+test_name <- "2D_test1"
+tests_dir <- paste("../../fdaPDE/test/data/models/FPLSR", SIMPLS ,"/",test_name,"/", sep = '')
+at_locations <- FALSE
 is_test0 <- FALSE
+
+path_images <- paste("images", SIMPLS, SELECTION, "/", sep = '')
+
 
 
 # ||||||||||||
 # Results ----
 # ||||||||||||
 
-path_images <- "images/"
 if (!file.exists(path_images)){
   dir.create(path_images)
 }
@@ -37,7 +41,6 @@ for(i in 1:6){
 }
 
 
-
 if(!is_test0){
   result <- read.csv(paste(tests_dir,"errors.csv", sep = ''), header=TRUE)
   print(result)
@@ -46,7 +49,7 @@ if(!is_test0){
 for(i in 1:6){
   
   path_images_test <- paste(path_images_test_suite, "test", i, "/", sep = '')
-  # jpeg(file=paste(path_images_test, "Y.jpg", sep = ''))
+  jpeg(file=paste(path_images_test, "Y.jpg", sep = ''))
   
   par(mfrow = c(1,1))
   
@@ -59,50 +62,51 @@ for(i in 1:6){
   if(is_test0)
     Y_hat <- as.vector(read.csv(paste(path,"Y_hat.csv", sep = ''), header = TRUE))$V1
   else
-    Y_hat <- as.vector(read.csv(paste(path,"results/Y_hat.csv", sep = ''), header = FALSE))$V1
+    Y_hat <- as.vector(read.csv(paste(path,"results", SELECTION, "/Y_hat.csv", sep = ''), header = FALSE))$V1
     
   points(1:length(Y_hat), as.vector(Y_hat), pch = 4,  col = "green")
   legend("topleft", c("Y_clean", "Y", "Y_hat"), pch = c(1,3,4), col = c("black", "blue", "green"))
   
-  # dev.off();
-}
-
-if(!is_test0){
-  for(i in 1:6){
-    
-    path_images_test <- paste(path_images_test_suite, "test", i, "/", sep = '')
-    # jpeg(file=paste(path_images_test, "X.jpg", sep = ''))
-    
-    path <- paste(tests_dir, "test", i, "/", sep = '')
-    
-    par(mfrow = c(2,2))
-    X_clean <- read.csv(paste(path, "X_clean.csv", sep = ''), header = TRUE)[,2:3601]
-    image(matrix(as.numeric(X_clean[1,]), 60, 60), main = "X_clean")
-    
-    if(!at_locations){
-      X <- read.csv(paste(path, "X.csv", sep = ''), header = TRUE)[,2:3601]
-      image(matrix(as.numeric(X[1,]), 60, 60), main = "X")
-    }
-    
-    X_hat <- read.csv(paste(path,"results/X_hat.csv", sep = ''), header = FALSE)
-    image(matrix(as.numeric(X_hat[1,]), 60, 60), main = paste("X_hat", sep = ''))
-    
-    error <- X_clean[1,] - X_hat[1,]
-    image(matrix(as.numeric(error), 60, 60), main = paste("error", sep = ''))
-    
-    if(at_locations){
-      locs <- read.csv(paste(path, "locations.csv", sep = ''), header = TRUE)[,2:3]
-      plot(locs, pch = 8, col = "red", main = "Locations")
-    }
-  
-    # dev.off();
-  }
+  dev.off();
 }
 
 for(i in 1:6){
   
   path_images_test <- paste(path_images_test_suite, "test", i, "/", sep = '')
-  # jpeg(file=paste(path_images_test, "B.jpg", sep = ''))
+  jpeg(file=paste(path_images_test, "X.jpg", sep = ''))
+  
+  path <- paste(tests_dir, "test", i, "/", sep = '')
+  
+  par(mfrow = c(2,2))
+  X_clean <- read.csv(paste(path, "X_clean.csv", sep = ''), header = TRUE)[,2:3601]
+  image(matrix(as.numeric(X_clean[1,]), 60, 60), main = "X_clean")
+  
+  if(!at_locations){
+    X <- read.csv(paste(path, "X.csv", sep = ''), header = TRUE)[,2:3601]
+    image(matrix(as.numeric(X[1,]), 60, 60), main = "X")
+  }
+  
+  if(is_test0)
+    X_hat <- read.csv(paste(path,"X_hat.csv", sep = ''), header = TRUE)[,2:3601]
+  else
+    X_hat <- read.csv(paste(path,"results", SELECTION, "/X_hat.csv", sep = ''), header = FALSE)
+  image(matrix(as.numeric(X_hat[1,]), 60, 60), main = paste("X_hat", sep = ''))
+  
+  error <- X_clean[1,] - X_hat[1,]
+  image(matrix(as.numeric(error), 60, 60), main = paste("error", sep = ''))
+  
+  if(at_locations){
+    locs <- read.csv(paste(path, "locations.csv", sep = ''), header = TRUE)[,2:3]
+    plot(locs, pch = 8, col = "red", main = "Locations")
+  }
+
+  dev.off();
+}
+
+for(i in 1:6){
+  
+  path_images_test <- paste(path_images_test_suite, "test", i, "/", sep = '')
+  jpeg(file=paste(path_images_test, "B.jpg", sep = ''))
   
   path <- paste(tests_dir, "test", i, "/", sep = '')
 
@@ -113,14 +117,71 @@ for(i in 1:6){
   if(is_test0)
     B_hat <- read.csv(paste(path,"B_hat.csv", sep = ''), header = TRUE)$V1
   else
-    B_hat <- read.csv(paste(path,"results/B_hat.csv", sep = ''), header = FALSE)$V1
+    B_hat <- read.csv(paste(path,"results", SELECTION, "/B_hat.csv", sep = ''), header = FALSE)$V1
   
   image(matrix(as.numeric(B_hat), 60, 60), main = paste("B_hat", sep = ''))
   
   error <- B - B_hat
   image(matrix(as.numeric(error), 60, 60), main = paste("error", sep = ''))
 
-  # dev.off();
+  dev.off();
 }
 
-
+# |||||||||||||||||||||||||||||||||
+# Comparison lambda for test 2 ----
+# |||||||||||||||||||||||||||||||||
+# 
+# exp_range <- 1:12
+# 
+# results = list()
+# for(x in exp_range){
+#   results[[paste(x, sep = '')]] <- read.csv(paste(tests_dir,"errors_lambda1e-",x,".csv", sep = ''), header=TRUE)
+# }
+# 
+# choosen <- 3
+# 
+# 
+# jpeg(file=paste(path_images, "lambda_selection.jpg", sep = ''))
+# par(mfrow = c(2,2))
+# 
+# Y_error = NULL
+# for(x in exp_range){
+#   Y_error = rbind(Y_error, results[[paste(x, sep = '')]]$Y_error)
+# }
+# matplot(log(t(Y_error)), type = "l", lty = 1,
+#         main = "MSE(Y, lambda)",
+#         xlab = "Tests", col = rainbow(length((results))),
+#         ylab = "log(MSE)")
+# matlines(log(Y_error[choosen,]), type = "l", lty = 2, lwd = 2,
+#         col = rainbow(length((results)))[choosen])
+# 
+# X_error = NULL
+# for(x in exp_range){
+#   X_error = rbind(X_error, results[[paste(x, sep = '')]]$X_error)
+# }
+# matplot(log(t(X_error)), type = "l", lty = 1,
+#         main = "MSE(X, lambda)",
+#         xlab = "Tests", col = rainbow(length((results))),
+#         ylab = "log(MSE)")
+# matlines(log(X_error[choosen,]), type = "l", lty = 2, lwd = 2,
+#          col = rainbow(length((results)))[choosen])
+# 
+# 
+# B_error = NULL
+# for(x in exp_range){
+#   B_error = rbind(B_error, results[[paste(x, sep = '')]]$B_error)
+# }
+# matplot(log(t(B_error)), type = "l", lty = 1,
+#         main = "MSE(B, lambda)",
+#         xlab = "Tests", col = rainbow(length((results))),
+#         ylab = "log(MSE)")
+# matlines(log(B_error[choosen,]), type = "l", lty = 2, lwd = 2,
+#          col = rainbow(length((results)))[choosen])
+# 
+# 
+# plot.new()
+# legend("center", c(paste("lambda = 1e-", exp_range, sep = "")), col = rainbow(length((results))), lty = 1)
+# 
+# dev.off()
+# 
+# 

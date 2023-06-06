@@ -11,20 +11,20 @@ graphics.off()
 # ||||||||||||||||||||||||||
 
 # Where to get the data
-tests_dir = "../../fdaPDE/test/data/models/FPLSR/2D_test_comparison/"
+tests_dir = "../../fdaPDE/test/data/models/FPLSR_SIMPLS/2D_test_comparison/" # /complete
 # tests_dir <- "2D_test_comparison/"
-n_batches <- 20
+n_batches <- 10
 n_tests <- 6
 
 TEST <- TRUE
 # TRUE: test error is computed
 # FALSE: training error is computed
 
-path_images <- "images/" # _SIMPLS
+path_images <- "images_SIMPLS/"
 if (!file.exists(path_images)){
   dir.create(path_images)
 }
-path_images <- "images/comparison/" # _SIMPLS
+path_images <- "images_SIMPLS/comparison/"
 if (!file.exists(path_images)){
   dir.create(path_images)
 }
@@ -162,7 +162,7 @@ merge_errors <- function(errors1, errors2, n_test, n_test_options_1, n_test_opti
 # - PLS: Multivataite PLS (NIPALS algorithm)
 # - SIMPLS: Multivataite PLS (SIMPLS algorithm)
 
-test_name_option_vect <- c("hcpp_l0", "ns_l0", "hcpp", "ns", "sr", "sri")
+test_name_option_vect <- c("ns_l0", "ns", "sri") #, "PLS", "SIMPLS")
 n_test_options <- length(test_name_option_vect)
 
 # errors_Y <- matrix(0, nrow = n_batches, ncol = (n_test_options+1)*n_tests)
@@ -197,12 +197,13 @@ errors_X_merged = merge_errors(errors_X, errors_X_multivariate, n_tests, n_test_
 if(TEST)
   errors_B_merged = merge_errors(errors_B, errors_B_multivariate, n_tests, n_test_options, 3)
 
-colors <- c("red", "orange", "darkgrey",  "purple", "blue", "lightblue", "darkgreen", "green", "lightgreen") # "red"
-names <- c("Harold C++, lambda = 0", "fPLSR no smoothing, lambda = 0", "Harold C++",
-           "fPLSR no smoothing", "fPLSR smoothing regression", "fPLSR smoothing reg. + init.",
+colors <- c("orange",  "purple", "blue", "darkgreen", "green", "lightgreen") # "red"
+names <- c("fPLSR_SIMPLS no smoothing, lambda = 0",
+           "fPLSR_SIMPLS no smoothing", "fPLSR_SIMPLS smoothing reg. + init.", 
            "M-PLSR (NIPALS)", "M-PLSR (NIPALS no Y deflation)", "M_PLSR (SIMPLS)") # "Harold R"
 
-tests_to_be_shown <- c(3:6, 1, 2, 7, 9)
+
+tests_to_be_shown <- c(2, 1, 4, 6)
 n_test_options_merged <- dim(errors_Y_merged)[2]/n_tests
 plot_results_divided(n_test_options_merged, tests_to_be_shown, n_tests, errors_Y_merged, errors_X_merged, errors_B_merged, TEST, type, colors, names) 
 # plot_results(n_test_options_merged, tests_to_be_shown, n_tests, errors_Y_merged, errors_X_merged, errors_B_merged, TEST, type, colors, names) 
@@ -223,10 +224,10 @@ errors_Y_train_multivariate <- read.csv(paste(tests_dir, "errors_Y_train_multiva
 errors_X_train_multivariate <- read.csv(paste(tests_dir, "errors_X_train_multivariate.csv", sep = ''), header = TRUE)[,-1]
 
 # merge dataframe
-errors_X_merged_test = merge_errors(errors_X, errors_X_multivariate, n_tests, 6, 3)
-errors_Y_merged_test = merge_errors(errors_Y, errors_Y_multivariate, n_tests, 6, 3)
-errors_X_merged_train = merge_errors(errors_X_train, errors_X_train_multivariate, n_tests, 6, 3)
-errors_Y_merged_train = merge_errors(errors_Y_train, errors_Y_train_multivariate, n_tests, 6, 3)
+errors_X_merged_test = merge_errors(errors_X, errors_X_multivariate, n_tests, 3, 3)
+errors_Y_merged_test = merge_errors(errors_Y, errors_Y_multivariate, n_tests, 3, 3)
+errors_X_merged_train = merge_errors(errors_X_train, errors_X_train_multivariate, n_tests, 3, 3)
+errors_Y_merged_train = merge_errors(errors_Y_train, errors_Y_train_multivariate, n_tests, 3, 3)
 
 temp_Y_test = matrix(colSums(errors_Y_merged_test)/n_batches, ncol = n_test_options_merged, byrow = TRUE)
 temp_Y_train = matrix(colSums(errors_Y_merged_train)/n_batches, ncol = n_test_options_merged, byrow = TRUE)
@@ -234,8 +235,8 @@ temp_X_test = matrix(colSums(errors_X_merged_test)/n_batches, ncol = n_test_opti
 temp_X_train = matrix(colSums(errors_X_merged_train)/n_batches, ncol = n_test_options_merged, byrow = TRUE)
 
 
-functional_methods <- c(4:6)
-multivariate_methods <- c(2,7,8,9)
+functional_methods <- c(2:3)
+multivariate_methods <- c(1,4:6)
 
 
 jpeg(file=paste(path_images, "trainVStest",".jpg", sep = ''), quality = 100, width = 800, height = 800, units = 'px')
