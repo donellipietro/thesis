@@ -13,9 +13,9 @@ graphics.off()
 # Where to get the data
 SIMPLS = "_SIMPLS"
 SELECTION = ""
-test_name <- "2D_test1"
+test_name <- "2D_test4"
 tests_dir <- paste("../../fdaPDE/test/data/models/FPLSR", SIMPLS ,"/",test_name,"/", sep = '')
-at_locations <- FALSE
+at_locations <- TRUE
 is_test0 <- FALSE
 
 path_images <- paste("images", SIMPLS, SELECTION, "/", sep = '')
@@ -141,7 +141,7 @@ for(i in 1:6){
 # choosen <- 3
 # 
 # 
-# jpeg(file=paste(path_images, "lambda_selection.jpg", sep = ''))
+# jpeg(file=paste(path_images, "lambda_selection.jpg", sep = ''), quality = 100, width = 1100, height = 800, units = 'px')
 # par(mfrow = c(2,2))
 # 
 # Y_error = NULL

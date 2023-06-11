@@ -109,4 +109,12 @@ write.csv(errors_B, paste(tests_dir, "errors_B_multivariate.csv", sep = ''))
 write.csv(errors_Y_train, paste(tests_dir, "errors_Y_train_multivariate.csv", sep = ''))
 write.csv(errors_X_train, paste(tests_dir, "errors_X_train_multivariate.csv", sep = ''))
 
+tests_dir <- "../../fdaPDE/test/data/models/FPLSR_SIMPLS/2D_test_comparison/"
+
+write.csv(errors_Y, paste(tests_dir, "errors_Y_multivariate.csv", sep = ''))
+write.csv(errors_X, paste(tests_dir, "errors_X_multivariate.csv", sep = ''))
+write.csv(errors_B, paste(tests_dir, "errors_B_multivariate.csv", sep = ''))
+write.csv(errors_Y_train, paste(tests_dir, "errors_Y_train_multivariate.csv", sep = ''))
+write.csv(errors_X_train, paste(tests_dir, "errors_X_train_multivariate.csv", sep = ''))
+
 
