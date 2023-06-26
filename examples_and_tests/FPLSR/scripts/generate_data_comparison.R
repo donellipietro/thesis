@@ -50,7 +50,19 @@ if (!file.exists(test_dir)){
   dir.create(test_dir)
 }
 
+print(" ")
+print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+print("% FPLSR comparison data generation %")
+print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+print(" ")
+
+
+
 for(i in 1:6){
+  
+  print("###########")
+  print(paste("Test ", i, sep = ""))
+  print("###########")
   
   n_batches <- 20
   batch_size <- 50

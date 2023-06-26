@@ -14,7 +14,7 @@ library(pls)
 library(fda)
 library(pR1FPLS)
 
-load("generate_2d_data.RData")
+load("scripts/functions/generate_2d_data.RData")
 
 
 # ||||||||||||||||||||||||||
@@ -53,7 +53,17 @@ for(i in 1:5){
   }
 }
 
+print(" ")
+print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+print("% FPLSR tests data generation %")
+print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+print(" ")
+
 for(i in 1:6){
+  
+  print("###########")
+  print(paste("Test ", i, sep = ""))
+  print("###########")
 
   data <- generate_2d_data(x, y, S2, N, i, 0.95)
   

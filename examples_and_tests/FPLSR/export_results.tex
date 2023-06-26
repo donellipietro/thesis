@@ -10,12 +10,12 @@
     \begin{table}[htbp]
     \centering
     \begin{tabular}{cc}
-        \includegraphics[width=0.45\linewidth]{#1/comparison/comparison_Y.jpg} &
-        \includegraphics[width=0.45\linewidth]{#1/comparison/comparison_Y_train.jpg} \\
-        \includegraphics[width=0.45\linewidth]{#1/comparison/comparison_X.jpg} &
-        \includegraphics[width=0.45\linewidth]{#1/comparison/comparison_X_train.jpg} \\
-        \includegraphics[width=0.45\linewidth]{#1/comparison/comparison_B.jpg} &
-        \includegraphics[width=0.45\linewidth]{#1/comparison/trainVStest.jpg} \\
+        \includegraphics[width=0.45\linewidth]{images/#1/comparison_Y_test.jpg} &
+        \includegraphics[width=0.45\linewidth]{images/#1/comparison_Y_train.jpg} \\
+        \includegraphics[width=0.45\linewidth]{images/#1/comparison_X_test.jpg} &
+        \includegraphics[width=0.45\linewidth]{images/#1/comparison_X_train.jpg} \\
+        \includegraphics[width=0.45\linewidth]{images/#1/comparison_B_test.jpg} &
+        \includegraphics[width=0.45\linewidth]{images/#1/trainVStest.jpg} \\
     \end{tabular}
     \label{tab:pictures}
     \end{table}
@@ -27,9 +27,9 @@
         \begin{table}[htbp]
         \centering
         \begin{tabular}{ccc}
-            \includegraphics[width=0.295\linewidth]{#1/#2/test\subtest/Y.jpg} &
-            \includegraphics[width=0.295\linewidth]{#1/#2/test\subtest/X.jpg} &
-            \includegraphics[width=0.295\linewidth]{#1/#2/test\subtest/B.jpg} \\
+            \includegraphics[width=0.295\linewidth]{images/#1/#2/test\subtest/Y.jpg} &
+            \includegraphics[width=0.295\linewidth]{images/#1/#2/test\subtest/X.jpg} &
+            \includegraphics[width=0.295\linewidth]{images/#1/#2/test\subtest/B.jpg} \\
         \end{tabular}
         \label{tab:pictures}
         \end{table}
@@ -47,48 +47,48 @@
 
 % NIPALS: Comparison
 \section*{2D Test 1 - Comparison}
-\plotComparison{images}
+\plotComparison{images_NIPALS_comparison}
 \clearpage
 
 % NIPALS: Test 1 - Harold script
 \section*{2D Test 1 - Harold's method (C++ impementation)}
-\plotTest{images}{2D_test0}
+\plotTest{images_NIPALS_fixed}{2D_test0}
 \clearpage
 
 % NIPALS: Test 1
 \section*{2D Test 1}
 $locations \equiv nodes$
-\plotTest{images}{2D_test1}
+\plotTest{images_NIPALS_fixed}{2D_test1}
 \clearpage
 
 % NIPALS: Test 2 wrong
-\section*{2D Test 2 ($\lambda = 1e-12$)}
-$locations \not \equiv nodes,\#locations < \#nodes$
-\plotTest{images}{2D_test2_wrong}
-\begin{figure}
-    \centering
-    \includegraphics[width=0.8\textwidth]{images/lambda_selection.jpg}
-    \caption{$\lambda$ selection}
-    \label{fig:lambda_selection}
-\end{figure}
-\clearpage
+% \section*{2D Test 2 ($\lambda = 1e-12$)}
+% $locations \not \equiv nodes,\#locations < \#nodes$
+% \plotTest{images_NIPALS}{2D_test2_wrong}
+% \begin{figure}
+%     \centering
+%     \includegraphics[width=0.8\textwidth]{images/lambda_selection.jpg}
+%     \caption{$\lambda$ selection}
+%     \label{fig:lambda_selection}
+% \end{figure}
+% \clearpage
 
 % NIPALS: Test 2
 \section*{2D Test 2 ($\lambda = 1e-3$)}
 $locations \not \equiv nodes,\#locations < \#nodes$
-\plotTest{images}{2D_test2}
+\plotTest{images_NIPALS_fixed}{2D_test2}
 \clearpage
 
 % NIPALS: Test 3
 \section*{2D Test 3}
 $locations \not \equiv nodes,\#locations < \#nodes$
-\plotTest{images}{2D_test3}
+\plotTest{images_NIPALS_fixed}{2D_test3}
 \clearpage
 
 % NIPALS: Test 4
 \section*{2D Test 4}
 $locations \not \equiv nodes,\#locations \ll \#nodes$
-\plotTest{images}{2D_test4}
+\plotTest{images_NIPALS_fixed}{2D_test4}
 \clearpage
 
 
@@ -103,7 +103,7 @@ $locations \not \equiv nodes,\#locations \ll \#nodes$
 % NIPALS: Test 1
 \section*{2D Test 1}
 $locations \equiv nodes$
-\plotTest{images_KCV}{2D_test1}
+\plotTest{images_NIPALS_KCV}{2D_test1}
 \clearpage
 
 
@@ -117,31 +117,31 @@ $locations \equiv nodes$
 
 % NIPALS: Comparison
 \section*{2D Test 1 - Comparison}
-\plotComparison{images_SIMPLS}
+\plotComparison{images_SIMPLS_comparison}
 \clearpage
 
 % SIMPLS: Test 1
 \section*{2D Test 1}
 $locations \equiv nodes$
-\plotTest{images_SIMPLS}{2D_test1}
+\plotTest{images_SIMPLS_fixed}{2D_test1}
 \clearpage
 
 % SIMPLS: Test 2
 \section*{2D Test 2}
 $locations \not \equiv nodes,\#locations < \#nodes$
-\plotTest{images_SIMPLS}{2D_test2}
+\plotTest{images_SIMPLS_fixed}{2D_test2}
 \clearpage
 
 % SIMPLS: Test 3
 \section*{2D Test 3}
 $locations \not \equiv nodes,\#locations < \#nodes$
-\plotTest{images_SIMPLS}{2D_test3}
+\plotTest{images_SIMPLS_fixed}{2D_test3}
 \clearpage
 
 % SIMPLS: Test 4
 \section*{2D Test 4}
 $locations \not \equiv nodes,\#locations \ll \#nodes$
-\plotTest{images_SIMPLS}{2D_test4}
+\plotTest{images_SIMPLS_fixed}{2D_test4}
 \clearpage
 
 

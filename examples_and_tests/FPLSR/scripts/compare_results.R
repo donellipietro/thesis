@@ -5,33 +5,6 @@
 rm(list = ls())
 graphics.off()
 
-
-# ||||||||||||||||||||||||||
-# Environment variables ----
-# ||||||||||||||||||||||||||
-
-# Where to get the data
-tests_dir = "../../fdaPDE/test/data/models/FPLSR_SIMPLS/2D_test_comparison/" # /complete
-# tests_dir <- "2D_test_comparison/"
-n_batches <- 2
-n_tests <- 6
-
-test_name_option_vect <- c("ns_l0", "ns", "sr", "sri")
-n_test_options <- length(test_name_option_vect)
-
-TEST <- FALSE
-# TRUE: test error is computed
-# FALSE: training error is computed
-
-path_images <- "images_SIMPLS/"
-if (!file.exists(path_images)){
-  dir.create(path_images)
-}
-path_images <- "images_SIMPLS/comparison/"
-if (!file.exists(path_images)){
-  dir.create(path_images)
-}
-
 # ||||||||||||||
 # Functions ----
 # ||||||||||||||
@@ -86,13 +59,12 @@ plot_results <- function(n_test_options, tests_to_be_shown, n_tests, errors_Y, e
   legend("center", names[tests_to_be_shown], col = colors[tests_to_be_shown], pch = 15)
 }
 
-plot_results_divided <- function(n_test_options, tests_to_be_shown, n_tests, errors_Y, errors_X, errors_B, TEST, type, colors, names) {
+plot_results_divided <- function(n_test_options, tests_to_be_shown, n_tests, errors_Y, errors_X, errors_B, TEST, type, colors, names, path_images) {
   
   cols_to_be_shown <- matrix(rep(tests_to_be_shown, n_tests), ncol = length(tests_to_be_shown), byrow = TRUE)
   cols_to_be_shown <- cols_to_be_shown + 0:(n_tests-1)*n_test_options
   
-  if(type == "train")
-    type = paste('_', type, sep = '')
+  type = paste('_', type, sep = '')
   
   jpeg(file=paste(path_images, "comparison_Y", type,".jpg", sep = ''), quality = 100, width = 1100, height = 800, units = 'px')
   par(mfrow = c(2,3))
@@ -120,7 +92,7 @@ plot_results_divided <- function(n_test_options, tests_to_be_shown, n_tests, err
     jpeg(file=paste(path_images, "comparison_B", type,".jpg", sep = ''), quality = 100, width = 1100, height = 800, units = 'px')
     par(mfrow = c(2,3))
     for(i in 1:dim(cols_to_be_shown)[1]){
-      boxplot(round(errors_B[, cols_to_be_shown[i,]],4),  ylab = "MSE", # xlab = "Test",
+      boxplot(errors_B[, cols_to_be_shown[i,]], ylab = "MSE", # xlab = "Test",
               col = colors[tests_to_be_shown],
               main = paste("MSE", type, "B, Test", i), xaxt = 'n')
       # axis(1, at=(length(tests_to_be_shown))-(length(tests_to_be_shown)-1)/2, labels=i)
@@ -136,7 +108,6 @@ plot_results_divided <- function(n_test_options, tests_to_be_shown, n_tests, err
   dev.off()
 }
 
-
 merge_errors <- function(errors1, errors2, n_test, n_test_options_1, n_test_options_2){
   n_batches <- min(dim(errors1)[1], dim(errors2)[1])
   n_test_options <- n_test_options_1 + n_test_options_2
@@ -149,134 +120,226 @@ merge_errors <- function(errors1, errors2, n_test, n_test_options_1, n_test_opti
   return(errors_merged)
 }
 
+create_directories <- function(METHOD) {
+  path_images <- "images/"
+  if (!file.exists(path_images)){
+    dir.create(path_images)
+  }
+  path_images <- paste("images/images",METHOD,"_comparison/", sep ="")
+  if (!file.exists(path_images)){
+    dir.create(path_images)
+  }
+  return(path_images)
+}
 
-# ||||||||||||
-# Results ----
-# ||||||||||||
 
-# Legend:
-# - 0: Harold R
-# - hcpp_l0: Harold c++, lambda = 0 
-# - ns_lo: No smoothing at all (Only diff with H. is R0), lambda = 0 
-# - hcpp: Harold c++
-# - ns: No smoothing at all (Only diff with H. is R0)
-# - sr: Smoothing only in regression
-# - sri: Smoothing in the estimation of the mean and in regression
-# - PLS: Multivataite PLS (NIPALS algorithm)
-# - SIMPLS: Multivataite PLS (SIMPLS algorithm)
+plot_testVStrain <- function(path_images, temp_Y_train, temp_Y_test, temp_X_train, temp_X_test, functional_methods, multivariate_methods, colors) {
+  jpeg(file=paste(path_images, "trainVStest",".jpg", sep = ''), quality = 100, width = 1100, height = 800, units = 'px')
+  par(mfrow = c(2,2))
+  y_min <- log(min(min(temp_Y_train), min(temp_Y_test)))
+  y_max <- log(max(max(temp_Y_train), max(temp_Y_test)))
+  matplot(log(temp_Y_test[,functional_methods]), type = "l", lty = 1,
+          main = "Functional methods", xlab = "Test", ylab = "log(mean MSE Y)",
+          ylim = c(y_min, y_max), col = colors[functional_methods])
+  matplot(log(temp_Y_train[,functional_methods]), type = "l", lty = 2,  add = TRUE,
+          col = colors[functional_methods])
+  legend("topright", c("Test", "Train"), lty = c(1, 2))
+  grid()
+  matplot(log(temp_Y_test[,multivariate_methods]), type = "l", lty = 1,
+          main = "Multivariate methods", xlab = "Test", ylab = "log(mean MSE Y)",
+          ylim = c(y_min, y_max), col = colors[multivariate_methods])
+  matplot(log(temp_Y_train[,multivariate_methods]), type = "l", lty = 2,  add = TRUE,
+          col = colors[multivariate_methods])
+  legend("topright", c("Test", "Train"), lty = c(1, 2))
+  grid()
+  
+  y_min <- log(min(min(temp_X_train), min(temp_X_test)))
+  y_max <- log(max(max(temp_X_train), max(temp_X_test)))
+  matplot(log(temp_X_test[,functional_methods]), type = "l", lty = 1,
+          main = "Functional methods", xlab = "Test", ylab = "log(mean MSE X)",
+          ylim = c(y_min, y_max), col = colors[functional_methods])
+  matplot(log(temp_X_train[,functional_methods]), type = "l", lty = 2,  add = TRUE,
+          col = colors[functional_methods])
+  legend("topright", c("Test", "Train"), lty = c(1, 2))
+  grid()
+  matplot(log(temp_X_test[,multivariate_methods]), type = "l", lty = 1,
+          main = "Multivariate methods", xlab = "Test", ylab = "log(mean MSE X)",
+          ylim = c(y_min, y_max), col = colors[multivariate_methods])
+  matplot(log(temp_X_train[,multivariate_methods]), type = "l", lty = 2,  add = TRUE,
+          col = colors[multivariate_methods])
+  legend("topright", c("Test", "Train"), lty = c(1, 2))
+  grid()
+  dev.off()
+}
 
-# errors_Y <- matrix(0, nrow = n_batches, ncol = (n_test_options+1)*n_tests)
-# errors_X  <- matrix(0, nrow = n_batches, ncol = (n_test_options+1)*n_tests)
-# errors_B  <- matrix(0, nrow = n_batches, ncol = (n_test_options+1)*n_tests)
-# errors_B_min  <- matrix(0, nrow = n_batches, ncol = (n_test_options+1)*n_tests)
-# errors_B_max  <- matrix(0, nrow = n_batches, ncol = (n_test_options+1)*n_tests)
+
 
 # ||||||||||||||||||||||
 # Visualize results ----
 # ||||||||||||||||||||||
 
-# load errors
-if(TEST){
-  type = ""
+# Methods
+METHODS_vec <- c("NIPALS", "SIMPLS")
+METHODS_PATH_test_vec <- c("", "_SIMPLS")
+METHODS_PATH_results_vec <- c("_NIPALS", "_SIMPLS")
+
+# Test options
+test_name_options_vec <- list(c("hcpp_l0", "ns_l0", "hcpp", "ns", "sr", "sri", "hcpp-KCV", "sri-GCV"),
+                              c("ns_l0", "ns", "sr", "sri"))
+n_batches_vec <- c(20, 20)
+n_tests_vec <- c(6, 6)
+
+# Visualization
+tests_to_be_shown_vec <- list(
+  # NIPALS
+  c(3, 4:6, 7:8, 1, 2, 9),
+  # SIMPLS
+  c(2:3, 1, 5, 7)
+)
+colors_vec <- list(
+  # NIPALS
+  c("red", "orange", # 1, 2
+    "darkgrey", # 3
+    "purple", "blue", "lightblue", # 4, 5, 6
+    "darkred", "darkblue", # 7, 8
+    "darkgreen", "green", "lightgreen"), # 9, 10, 11
+  # SIMPLS
+  c("orange", # 1
+    "purple", "blue", "lightblue", # 2, 3, 4
+    "darkgreen", "green", "lightgreen") # 5, 6, 7
+)
+names_vec <- list(
+  # NIPALS
+  c("Harold C++, lambda = 0", "fPLSR no smoothing, lambda = 0",
+    "Harold C++",
+    "fPLSR no smoothing", "fPLSR smoothing regression", "fPLSR smoothing reg. + init.",
+    "Harold C++, KCV", "fPLSR smoothing reg. + init., GCV",
+    "M-PLSR (NIPALS)", "M-PLSR (NIPALS no Y deflation)", "M_PLSR (SIMPLS)"),
+  # SIMPLS
+  c("fPLSR_SIMPLS no smoothing, lambda = 0",
+    "fPLSR_SIMPLS no smoothing", "fPLSR_SIMPLS smoothing reg.", "fPLSR_SIMPLS smoothing reg. + init.", 
+    "M-PLSR (NIPALS)", "M-PLSR (NIPALS no Y deflation)", "M_PLSR (SIMPLS)")
+)
+functional_methods_vect <- list(
+  c(3:6,7:8),
+  c(2:3)
+)
+multivariate_methods_vect <- list(
+  c(1:2,9:11),
+  c(1,5:7)
+)
+
+
+for(m in 1:length(METHODS_vec)){
+  
+  # Method
+  METHOD <- METHODS_vec[m]
+  METHOD_PATH_test <- METHODS_PATH_test_vec[m]
+  METHOD_PATH_results <- METHODS_PATH_results_vec[m]
+  
+  # Test dimensions
+  n_batches <- n_batches_vec[m]
+  n_tests <- n_tests_vec[m]
+  
+  # Test options
+  test_name_options <- test_name_options_vec[[m]]
+  n_test_options <- length(test_name_options)
+  
+  # Visualization options
+  tests_to_be_shown <- tests_to_be_shown_vec[[m]]
+  colors <- colors_vec[[m]]
+  names <- names_vec[[m]]
+  
+  # Test vs Train options
+  functional_methods <- functional_methods_vect[[m]]
+  multivariate_methods <- multivariate_methods_vect[[m]]
+  
+  # Directories
+  tests_dir = paste("../../fdaPDE/test/data/models/FPLSR",METHOD_PATH_test,"/2D_test_comparison/", sep ="")
+  path_images <- create_directories(METHOD_PATH_results)
+    
+  # Load errors
   errors_Y <- read.csv(paste(tests_dir, "errors_Y.csv", sep = ''), header = FALSE)
   errors_X <- read.csv(paste(tests_dir, "errors_X.csv", sep = ''), header = FALSE)
   errors_B <- read.csv(paste(tests_dir, "errors_B.csv", sep = ''), header = FALSE)
   errors_Y_multivariate <- read.csv(paste(tests_dir, "errors_Y_multivariate.csv", sep = ''), header = TRUE)[,-1]
   errors_X_multivariate <- read.csv(paste(tests_dir, "errors_X_multivariate.csv", sep = ''), header = TRUE)[,-1]
   errors_B_multivariate <- read.csv(paste(tests_dir, "errors_B_multivariate.csv", sep = ''), header = TRUE)[,-1]
-} else{
-  type = "train"
-  errors_Y <- read.csv(paste(tests_dir, "errors_Y_train.csv", sep = ''), header = FALSE)
-  errors_X <- read.csv(paste(tests_dir, "errors_X_train.csv", sep = ''), header = FALSE)
-  errors_Y_multivariate <- read.csv(paste(tests_dir, "errors_Y_train_multivariate.csv", sep = ''), header = TRUE)[,-1]
-  errors_X_multivariate <- read.csv(paste(tests_dir, "errors_X_train_multivariate.csv", sep = ''), header = TRUE)[,-1]
+  errors_Y_train <- read.csv(paste(tests_dir, "errors_Y_train.csv", sep = ''), header = FALSE)
+  errors_X_train <- read.csv(paste(tests_dir, "errors_X_train.csv", sep = ''), header = FALSE)
+  errors_Y_train_multivariate <- read.csv(paste(tests_dir, "errors_Y_train_multivariate.csv", sep = ''), header = TRUE)[,-1]
+  errors_X_train_multivariate <- read.csv(paste(tests_dir, "errors_X_train_multivariate.csv", sep = ''), header = TRUE)[,-1]
+  
+  # Merge dataframes
+  n_test_option_1 <- dim(errors_Y)[2]/n_tests
+  n_test_option_2 <- dim(errors_Y_multivariate)[2]/n_tests
+  errors_Y_merged_test = merge_errors(errors_Y, errors_Y_multivariate, n_tests, n_test_option_1, n_test_option_2)
+  errors_X_merged_test = merge_errors(errors_X, errors_X_multivariate, n_tests, n_test_option_1, n_test_option_2)
+  errors_B_merged_test = merge_errors(errors_B, errors_B_multivariate, n_tests, n_test_option_1, n_test_option_2)
+  errors_Y_merged_train = merge_errors(errors_Y_train, errors_Y_train_multivariate, n_tests, n_test_option_1, n_test_option_2)
+  errors_X_merged_train = merge_errors(errors_X_train, errors_X_train_multivariate, n_tests, n_test_option_1, n_test_option_2)
+  
+  # Plot
+  n_test_options_merged <- dim(errors_Y_merged_test)[2]/n_tests
+  # Test
+  plot_results_divided(n_test_options_merged, tests_to_be_shown, n_tests, errors_Y_merged_test, errors_X_merged_test, errors_B_merged_test, TRUE, "test", colors, names, path_images) 
+  # Train
+  plot_results_divided(n_test_options_merged, tests_to_be_shown, n_tests, errors_Y_merged_train, errors_X_merged_train, NULL, FALSE, "train", colors, names, path_images)
+  
+  # Comparison 
+  temp_Y_test = matrix(colSums(errors_Y_merged_test)/n_batches, ncol = n_test_options_merged, byrow = TRUE)
+  temp_Y_train = matrix(colSums(errors_Y_merged_train)/n_batches, ncol = n_test_options_merged, byrow = TRUE)
+  temp_X_test = matrix(colSums(errors_X_merged_test)/n_batches, ncol = n_test_options_merged, byrow = TRUE)
+  temp_X_train = matrix(colSums(errors_X_merged_train)/n_batches, ncol = n_test_options_merged, byrow = TRUE)
+  plot_testVStrain(path_images, temp_Y_train, temp_Y_test, temp_X_train, temp_X_test, functional_methods, multivariate_methods, colors) 
+  
 }
 
-errors_Y_merged = merge_errors(errors_Y, errors_Y_multivariate, n_tests, n_test_options, 3)
-errors_X_merged = merge_errors(errors_X, errors_X_multivariate, n_tests, n_test_options, 3)
-if(TEST)
-  errors_B_merged = merge_errors(errors_B, errors_B_multivariate, n_tests, n_test_options, 3)
-
-colors <- c("orange",  "purple", "blue", "lightblue", "darkgreen", "green", "lightgreen") # "red"
-names <- c("fPLSR_SIMPLS no smoothing, lambda = 0",
-           "fPLSR_SIMPLS no smoothing", "fPLSR_SIMPLS smoothing reg.", "fPLSR_SIMPLS smoothing reg. + init.", 
-           "M-PLSR (NIPALS)", "M-PLSR (NIPALS no Y deflation)", "M_PLSR (SIMPLS)") # "Harold R"
 
 
-tests_to_be_shown <- c(2:3, 1, 5, 7)
-n_test_options_merged <- dim(errors_Y_merged)[2]/n_tests
-plot_results_divided(n_test_options_merged, tests_to_be_shown, n_tests, errors_Y_merged, errors_X_merged, errors_B_merged, TEST, type, colors, names) 
-# plot_results(n_test_options_merged, tests_to_be_shown, n_tests, errors_Y_merged, errors_X_merged, errors_B_merged, TEST, type, colors, names) 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 # ||||||||||||||||||
 # Test vs train ----
 # ||||||||||||||||||
 
-# Load errors
-errors_Y <- read.csv(paste(tests_dir, "errors_Y.csv", sep = ''), header = FALSE)
-errors_X <- read.csv(paste(tests_dir, "errors_X.csv", sep = ''), header = FALSE)
-errors_Y_multivariate <- read.csv(paste(tests_dir, "errors_Y_multivariate.csv", sep = ''), header = TRUE)[,-1]
-errors_X_multivariate <- read.csv(paste(tests_dir, "errors_X_multivariate.csv", sep = ''), header = TRUE)[,-1]
-errors_Y_train <- read.csv(paste(tests_dir, "errors_Y_train.csv", sep = ''), header = FALSE)
-errors_X_train <- read.csv(paste(tests_dir, "errors_X_train.csv", sep = ''), header = FALSE)
-errors_Y_train_multivariate <- read.csv(paste(tests_dir, "errors_Y_train_multivariate.csv", sep = ''), header = TRUE)[,-1]
-errors_X_train_multivariate <- read.csv(paste(tests_dir, "errors_X_train_multivariate.csv", sep = ''), header = TRUE)[,-1]
-
-# merge dataframe
-n_test_option_1 <- dim(errors_Y)[2]/n_tests
-n_test_option_2 <- dim(errors_Y_multivariate)[2]/n_tests
-errors_X_merged_test = merge_errors(errors_X, errors_X_multivariate, n_tests, n_test_option_1, n_test_option_2)
-errors_Y_merged_test = merge_errors(errors_Y, errors_Y_multivariate, n_tests, n_test_option_1, n_test_option_2)
-errors_X_merged_train = merge_errors(errors_X_train, errors_X_train_multivariate, n_tests, n_test_option_1, n_test_option_2)
-errors_Y_merged_train = merge_errors(errors_Y_train, errors_Y_train_multivariate, n_tests, n_test_option_1, n_test_option_2)
-
-temp_Y_test = matrix(colSums(errors_Y_merged_test)/n_batches, ncol = n_test_options_merged, byrow = TRUE)
-temp_Y_train = matrix(colSums(errors_Y_merged_train)/n_batches, ncol = n_test_options_merged, byrow = TRUE)
-temp_X_test = matrix(colSums(errors_X_merged_test)/n_batches, ncol = n_test_options_merged, byrow = TRUE)
-temp_X_train = matrix(colSums(errors_X_merged_train)/n_batches, ncol = n_test_options_merged, byrow = TRUE)
 
 
-functional_methods <- c(2:3)
-multivariate_methods <- c(1,5:7)
 
-
-jpeg(file=paste(path_images, "trainVStest",".jpg", sep = ''), quality = 100, width = 1100, height = 800, units = 'px')
-par(mfrow = c(2,2))
-y_min <- log(min(min(temp_Y_train), min(temp_Y_test)))
-y_max <- log(max(max(temp_Y_train), max(temp_Y_test)))
-matplot(log(temp_Y_test[,functional_methods]), type = "l", lty = 1,
-        main = "Functional methods", xlab = "Test", ylab = "mean MSE Y",
-        ylim = c(y_min, y_max), col = colors[functional_methods])
-matplot(log(temp_Y_train[,functional_methods]), type = "l", lty = 2,  add = TRUE,
-        col = colors[functional_methods])
-legend("topright", c("Test", "Train"), lty = c(1, 2))
-grid()
-matplot(log(temp_Y_test[,multivariate_methods]), type = "l", lty = 1,
-        main = "Multivariate methods", xlab = "Test", ylab = "mean MSE Y",
-        ylim = c(y_min, y_max), col = colors[multivariate_methods])
-matplot(log(temp_Y_train[,multivariate_methods]), type = "l", lty = 2,  add = TRUE,
-        col = colors[multivariate_methods])
-legend("topright", c("Test", "Train"), lty = c(1, 2))
-grid()
-
-y_min <- log(min(min(temp_X_train), min(temp_X_test)))
-y_max <- log(max(max(temp_X_train), max(temp_X_test)))
-matplot(log(temp_X_test[,functional_methods]), type = "l", lty = 1,
-        main = "Functional methods", xlab = "Test", ylab = "log(mean MSE X)",
-        ylim = c(y_min, y_max), col = colors[functional_methods])
-matplot(log(temp_X_train[,functional_methods]), type = "l", lty = 2,  add = TRUE,
-        col = colors[functional_methods])
-legend("topright", c("Test", "Train"), lty = c(1, 2))
-grid()
-matplot(log(temp_X_test[,multivariate_methods]), type = "l", lty = 1,
-        main = "Multivariate methods", xlab = "Test", ylab = "log(mean MSE X)",
-        ylim = c(y_min, y_max), col = colors[multivariate_methods])
-matplot(log(temp_X_train[,multivariate_methods]), type = "l", lty = 2,  add = TRUE,
-        col = colors[multivariate_methods])
-legend("topright", c("Test", "Train"), lty = c(1, 2))
-grid()
-dev.off()
 
 
 
