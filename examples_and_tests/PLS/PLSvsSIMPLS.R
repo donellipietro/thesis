@@ -12,6 +12,7 @@ graphics.off()
 
 load("PLSR.RData")
 load("SIMPLS.RData")
+load("PLSR_Donelli.RData")
 
 
 plot_prediction <- function(Y_hat, Y, Y.labs) {
@@ -43,7 +44,7 @@ plot_beta <- function(Beta){
 
 compare_results <- function(plsr_1, plsr_2){
   
-  elements_to_compare <- c("W", "V", "TT", "UU", "C", "D", "Beta", "Y_hat", "X_hat")
+  elements_to_compare <- c("TT", "C", "D", "Beta", "Y_hat", "X_hat") # c("W", "V", "TT", "UU", "C", "D", "Beta", "Y_hat", "X_hat")
   
   for(elem in elements_to_compare){
     
@@ -78,6 +79,8 @@ Y3 = matrix(read.csv(paste(path2, "Y.csv", sep = ''), header = TRUE)[,2], ncol =
 Y4 = matrix(read.csv(paste(path2, "Y.csv", sep = ''), header = TRUE)[,2], ncol = 1)
 Y5 = matrix(read.csv(paste(path2, "Y.csv", sep = ''), header = TRUE)[,2], ncol = 1)
 Y6 = matrix(read.csv(paste(path2, "Y.csv", sep = ''), header = TRUE)[,2], ncol = 1)
+
+Y_clean = matrix(read.csv(paste(path1, "Y_clean.csv", sep = ''), header = TRUE)[,2], ncol = 1)
 
 Y = cbind(Y1)
 Y.labs = c("Y1")
@@ -141,7 +144,7 @@ plot_prediction(Y_hat, Y, Y.labs)
 ## No Y deflation ----
 ## |||||||||||||||||||
 
-plsr_noYDefl = PLSR(X, Y, 3, TRUE)
+plsr_noYDefl = PLSR(X, Y, 3, FALSE)
 
 TT_noYDefl = plsr_noYDefl[["TT"]]
 B_noYDefl = plsr_noYDefl[["B"]]
@@ -154,9 +157,6 @@ par(mfrow = c(1,1))
 plot_beta(Beta_noYDefl)
 image(matrix(as.numeric(X_hat[1,]), 60, 60), main = "X_hat")
 plot_prediction(Y_hat, Y, Y.labs)
-
-Y_hat_noYDefl_2 = TT_noYDefl %*% B_noYDefl %*% t(TT_noYDefl) %*% Yc + Y.MEAN
-norm(Y_hat_noYDefl - Y_hat_noYDefl_2, "I")
 
 
 # SIMPLS ----
@@ -198,6 +198,30 @@ grid()
 Y_hat_simpls_2 = TT_simpls %*% t(TT_simpls) %*% Yc + Y.MEAN
 norm(Y_hat_simpls - Y_hat_simpls_2, "I")
 
+par(mfrow = c(1,1))
+plot(Y_hat, Y_hat_simpls)
+abline(a = 0,b = 1)
+
+
+# |||||||||||||||||
+# PLSR Donelli ----
+# |||||||||||||||||
+
+plsr_donelli = PLSR_Donelli(X, Y, 3)
+
+Beta_donelli = plsr_donelli[["Beta"]]
+Y_hat_donelli = plsr_donelli[["Y_hat"]]
+X_hat_donelli = plsr_donelli[["X_hat"]]
+
+plot_beta(Beta_donelli)
+par(mfrow = c(1,1))
+image(matrix(as.numeric(X_hat_donelli[1,]), 60, 60), main = "X_hat")
+plot_prediction(Y_hat_donelli, Y, Y.labs)
+
+par(mfrow = c(1,1))
+plot(Y_hat, Y_hat_donelli)
+abline(a = 0,b = 1)
+
 
 
 
@@ -210,11 +234,13 @@ norm(Y_hat_simpls - Y_hat_simpls_2, "I")
 Y = cbind(Y1)
 
 plsr = PLSR(X, Y, 3)
-plsr_noYDefl = PLSR(X, Y, 3, TRUE)
+plsr_noYDefl = PLSR(X, Y, 3, FALSE)
 simpls_comparison = SIMPLS(X, Y, 3)
+plsr_donelli = PLSR_Donelli(X, Y, 3)
 
 compare_results(plsr, plsr_noYDefl)
 compare_results(plsr, simpls_comparison)
+compare_results(plsr, plsr_donelli)
 
 
 ## Multivariate response ----

@@ -1,6 +1,6 @@
 # PLSR, NIPALS algorithm
 
-SIMPLS <- function(X, Y, A) {
+SIMPLS <- function(X, Y, A, compatibility = TRUE) {
   
   # X as a matrix
   X = as.matrix(X)
@@ -72,20 +72,41 @@ SIMPLS <- function(X, Y, A) {
   varX <- diag(t(P) %*% P)/(N-1)
   varY <- diag(t(Q) %*% Q)/(N-1)
   
-  return(list(W = R,
-              V = Q,
-              TT = TT,
-              UU = UU,
-              C = P,
-              D = Q,
-              V = V,
-              SS = SS,
-              Beta = Beta,
-              Y_hat = Y_hat,
-              X_hat = X_hat, 
-              h = h,
-              varX = varX,
-              varY = varY))
+  if(compatibility){
+    return(list(W = R,
+                V = Q,
+                TT = TT,
+                UU = UU,
+                C = P,
+                D = Q,
+                V = V,
+                SS = SS,
+                Beta = Beta,
+                Y_hat = Y_hat,
+                X_hat = X_hat, 
+                Y.mean = Y.mean,
+                X.mean = X.mean,
+                h = h,
+                varX = varX,
+                varY = varY))
+  } else {
+    return(list(R = R,
+                Q = Q,
+                TT = TT,
+                UU = UU,
+                P = P,
+                Q = Q,
+                V = V,
+                SS = SS,
+                Beta = Beta,
+                Y_hat = Y_hat,
+                X_hat = X_hat, 
+                Y.mean = Y.mean,
+                X.mean = X.mean,
+                h = h,
+                varX = varX,
+                varY = varY))
+  }
   
 }
 

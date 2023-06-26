@@ -1,6 +1,10 @@
 # PLSR, NIPALS algorithm
 
-PLSR <- function(X, Y, A, deflation_Y = TRUE) {
+PLSR_Donelli <- function(X, Y, A, deflation_Y = TRUE) {
+  
+  # Parameters
+  toll <- 1e-6
+  max_iter <- 100
   
   # Centering
   Xc = scale(X, scale = FALSE)
@@ -18,11 +22,7 @@ PLSR <- function(X, Y, A, deflation_Y = TRUE) {
   X.MEAN = matrix(X.mean, ncol = S, nrow = N, byrow = TRUE)
   
   # Room for solutions
-  W <- matrix(0, nrow = S, ncol = A)
-  V <- matrix(0, nrow = L, ncol = A)
   TT <- matrix(0, nrow = N, ncol = A)
-  UU <- matrix(0, nrow = N, ncol = A)
-  B <- matrix(0, nrow = A, ncol = A)
   
   # Extra
   C <- matrix(0, nrow = S, ncol = A)
@@ -40,25 +40,61 @@ PLSR <- function(X, Y, A, deflation_Y = TRUE) {
   
   for(i in 1:A){
     
-    # Decomposition
+    # Normalization constants
+    alpha <- norm(EE)
+    beta <- norm(FF)
+    
+    # Initialization
     C.YX <- t(FF) %*% EE
     SVD <- svd(C.YX, nu = 1, nv = 1)
-    W[,i] <- SVD$v # x-direction
-    V[,i] <- SVD$u # y-direction
-    TT[,i] <- EE %*% W[,i] # x-component
-    UU[,i] <- FF %*% V[,i] # y-component
+    c <- SVD$v # x-direction
+    d <- SVD$u # y-direction
     
-    tt = sum(TT[,i]^2)
+    c_change <- 1
+    d_change <- 1
+    delta_x <- 1
+    delta_y <- 1
+    n_iter <- 0
     
-    # Regression
-    C[,i] <- t(EE) %*% TT[,i] / tt
-    D[,i] <- t(FF) %*% TT[,i] / tt
-    B[i,i] <- t(UU[,i]) %*% TT[,i] / tt
+    while((c_change > toll || d_change > toll) && n_iter < max_iter){
+      
+      n_iter <- n_iter + 1
+      
+      # norm_coeff <- alpha * sum(c^2) + beta * sum(d^2)
+      TT[,i] <- (alpha * EE %*% c + beta * FF %*% d)
+      TT[,i] <- TT[,i]/norm(TT[,i],  "2")
+      
+      c <- t(EE) %*% TT[,i] # / sum(TT[,i]^2)
+      d <- t(FF) %*% TT[,i] # / sum(TT[,i]^2)
+      
+      delta_x <- norm(c, "2")
+      c <- c/delta_x
+      delta_y <- norm(d, "2")
+      d <- d/delta_y
+    
+      c_change <- norm(C[,i] - c, "2")
+      d_change <- norm(D[,i] - d, "2")
+        
+      C[,i] <- c
+      D[,i] <- d
+      
+    }
+    
+    C[,i] <- C[,i]*delta_x
+    D[,i] <- D[,i]*delta_y
+    
+    print(delta_x)
+    print(delta_y)
+    
+    print(n_iter)
+    print(c_change)
+    print(d_change)
     
     # Deflation
     EE <- EE - TT[,i] %*% t(C[,i])
     if(deflation_Y == TRUE)
-      FF <- FF - B[i,i] * TT[,i] %*% t(V[,i])
+      FF <- FF - TT[,i] %*% t(D[,i])
+
     
     # Intermediate steps
     XX[[i+1]] = EE
@@ -66,16 +102,12 @@ PLSR <- function(X, Y, A, deflation_Y = TRUE) {
     
   }
   
-  Beta <- W %*% solve(t(C) %*% W, B %*% t(V))
+  Beta <- C %*% solve(t(C) %*% C, t(D))
   
   Y_hat <- Xc %*% Beta + Y.MEAN
   X_hat <- TT %*% t(C) + X.MEAN 
   
-  return(list(W = W,
-              V = V,
-              TT = TT,
-              UU = UU,
-              B = B,
+  return(list(TT = TT,
               C = C,
               D = D,
               EE = EE,
@@ -90,4 +122,4 @@ PLSR <- function(X, Y, A, deflation_Y = TRUE) {
   
 }
 
-save(PLSR, file = "PLSR.RData")
+save(PLSR_Donelli, file = "PLSR_Donelli.RData")
