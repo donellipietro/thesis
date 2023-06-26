@@ -133,4 +133,4 @@ generate_2d_data <- function(x, y, S2 = 100, num_samples = 100, beta_num = 3, Rs
   
 }
 
-save(generate_2d_data, file = "generate_2d_data.RData")
+save(generate_2d_data, file = "scripts/functions/generate_2d_data.RData")

@@ -14,9 +14,7 @@ library(pls)
 library(fda)
 library(pR1FPLS)
 
-load("generate_2d_data.RData")
-load("../PLS/PLSR.RData")
-load("../PLS/SIMPLS.RData")
+load("scripts/functions/generate_2d_data.RData")
 
 
 # ||||||||||||||||||||||||||
@@ -55,7 +53,17 @@ for(i in 1:5){
   }
 }
 
+print(" ")
+print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+print("% FPLSR tests data generation %")
+print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+print(" ")
+
 for(i in 1:6){
+  
+  print("###########")
+  print(paste("Test ", i, sep = ""))
+  print("###########")
 
   data <- generate_2d_data(x, y, S2, N, i, 0.95)
   
@@ -126,6 +134,7 @@ for(i in 1:6){
   write.csv(X_hat, paste(sub_test_dir, "/X_hat.csv", sep = ''))
   write.csv(X_mean, paste(sub_test_dir, "/X_mean.csv", sep = ''))
   
+
   # Response
   Y_mean <- as.matrix(results_fpls_fem[["Y_mean"]], ncol = L, nrow = 1, byrow = TRUE)
   Y_hat <- as.matrix(results_fpls_fem[["fitted.values"]])
@@ -138,64 +147,6 @@ for(i in 1:6){
   B_hat <- results_fpls_fem[["coefficient_function"]]
   write.csv(B, paste(sub_test_dir, "/B.csv", sep = ''))
   write.csv(B_hat, paste(sub_test_dir, "/B_hat.csv", sep = ''))
-  
-  # M-PLS (NIPALS) solution
-  
-  results_PLS <- PLSR(X = X_nodes, Y = Y, A = 3)
-  
-  W <- results_PLS$W
-  V <- results_PLS$V
-  TT <- results_PLS$TT
-  C <- results_PLS$C
-  D <- results_PLS$D
-  write.csv(V, paste(sub_test_dir, "/V_multivariate_NIPALS.csv", sep = ''))
-  write.csv(W, paste(sub_test_dir, "/W_multivariate_NIPALS.csv", sep = ''))
-  write.csv(TT, paste(sub_test_dir, "/T_multivariate_NIPALS.csv", sep = ''))
-  write.csv(C, paste(sub_test_dir, "/C_multivariate_NIPALS.csv", sep = ''))
-  write.csv(D, paste(sub_test_dir, "/D_multivariate_NIPALS.csv", sep = ''))
-  
-  X_mean <- as.matrix(results_PLS$X.mean, ncol = K, nrow = 1, byrow = TRUE)
-  X_hat <- results_PLS$X_hat
-  write.csv(X_hat, paste(sub_test_dir, "/X_hat_multivariate_NIPALS.csv", sep = ''))
-  write.csv(X_mean, paste(sub_test_dir, "/X_mean_multivariate_NIPALS.csv", sep = ''))
-  
-  Y_mean <- as.matrix(results_PLS$Y.mean, ncol = L, nrow = 1, byrow = TRUE)
-  Y_hat <- results_PLS$Y_hat
-  write.csv(Y_hat, paste(sub_test_dir, "/Y_hat_multivariate_NIPALS.csv", sep = ''))
-  write.csv(Y_mean, paste(sub_test_dir, "/Y_mean_multivariate_NIPALS.csv", sep = ''))
-  
-  B_hat <- results_PLS$Beta
-  write.csv(B_hat, paste(sub_test_dir, "/B_hat_multivariate_NIPALS.csv", sep = ''))
-  
-  # M-PLS (SIMPLS) solution
-  
-  results_SIMPLS <- SIMPLS(X = X_nodes, Y = Y, A = 3, compatibility = FALSE)
-  
-  R <- results_SIMPLS$R
-  Q <- results_SIMPLS$Q
-  TT <- results_SIMPLS$TT
-  UU <- results_SIMPLS$UU
-  P <- results_SIMPLS$P
-  V <- results_SIMPLS$V
-  write.csv(R, paste(sub_test_dir, "/R_multivariate_SIMPLS.csv", sep = ''))
-  write.csv(Q, paste(sub_test_dir, "/Q_multivariate_SIMPLS.csv", sep = ''))
-  write.csv(TT, paste(sub_test_dir, "/T_multivariate_SIMPLS.csv", sep = ''))
-  write.csv(UU, paste(sub_test_dir, "/U_multivariate_SIMPLS.csv", sep = ''))
-  write.csv(P, paste(sub_test_dir, "/P_multivariate_SIMPLS.csv", sep = ''))
-  write.csv(V, paste(sub_test_dir, "/V_multivariate_SIMPLS.csv", sep = ''))
-  
-  X_mean <- as.matrix(results_SIMPLS$X.mean, ncol = K, nrow = 1, byrow = TRUE)
-  X_hat <- results_SIMPLS$X_hat
-  write.csv(X_hat, paste(sub_test_dir, "/X_hat_multivariate_SIMPLS.csv", sep = ''))
-  write.csv(X_mean, paste(sub_test_dir, "/X_mean_multivariate_SIMPLS.csv", sep = ''))
-  
-  Y_mean <- as.matrix(results_SIMPLS$Y.mean, ncol = L, nrow = 1, byrow = TRUE)
-  Y_hat <- results_SIMPLS$Y_hat
-  write.csv(Y_hat, paste(sub_test_dir, "/Y_hat_multivariate_SIMPLS.csv", sep = ''))
-  write.csv(Y_mean, paste(sub_test_dir, "/Y_mean_multivariate_SIMPLS.csv", sep = ''))
-  
-  B_hat <- results_SIMPLS$Beta
-  write.csv(B_hat, paste(sub_test_dir, "/B_hat_multivariate_SIMPLS.csv", sep = ''))
   
   
   ## |||||||||||

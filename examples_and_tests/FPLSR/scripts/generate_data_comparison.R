@@ -14,7 +14,7 @@ library(pls)
 library(fda)
 library(pR1FPLS)
 
-load("generate_2d_data.RData")
+load("scripts/functions/generate_2d_data.RData")
 
 
 # ||||||||||||||||||||||||||
@@ -50,7 +50,19 @@ if (!file.exists(test_dir)){
   dir.create(test_dir)
 }
 
+print(" ")
+print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+print("% FPLSR comparison data generation %")
+print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+print(" ")
+
+
+
 for(i in 1:6){
+  
+  print("######")
+  print(paste("Test ", i, sep = ""))
+  print("######")
   
   n_batches <- 20
   batch_size <- 50
@@ -80,6 +92,8 @@ for(i in 1:6){
   write.csv(B, paste(sub_test_dir, "/B.csv", sep = ''))
   
   for(j in 1:n_batches){
+    
+    print(paste("- Batch ", j, sep = ""))
     
     # Batch data
     picked <- ((j-1)*batch_size+1):(j*batch_size)
@@ -129,3 +143,4 @@ for(i in 1:6){
   }
   
 }
+
