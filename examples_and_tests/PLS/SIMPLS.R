@@ -95,7 +95,6 @@ SIMPLS <- function(X, Y, A, compatibility = TRUE) {
                 TT = TT,
                 UU = UU,
                 P = P,
-                Q = Q,
                 V = V,
                 SS = SS,
                 Beta = Beta,

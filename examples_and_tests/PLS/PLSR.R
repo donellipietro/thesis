@@ -1,6 +1,6 @@
 # PLSR, NIPALS algorithm
 
-PLSR <- function(X, Y, A, deflation_Y = TRUE) {
+PLSR <- function(X, Y, A, deflation_Y = FALSE) {
   
   # Centering
   Xc = scale(X, scale = FALSE)
