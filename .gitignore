@@ -15,6 +15,22 @@
 !examples_and_tests/FPLSR/*
 !examples_and_tests/FPLSR/scripts/*
 !examples_and_tests/FPLSR/scripts/functions/*
+!examples_and_tests/FPCA/
+!examples_and_tests/FPCA/*
+
+# Transcriptomics
+!transcriptomics/
+!transcriptomics/*
+# !transcriptomics/data/
+# !transcriptomics/data/*
+!transcriptomics/data/DLPFC/
+!transcriptomics/data/DLPFC/*
+!transcriptomics/data/masks/
+!transcriptomics/data/masks/*
+!transcriptomics/scripts/
+!transcriptomics/scripts/*
+!transcriptomics/scripts/functions/
+!transcriptomics/scripts/functions/*
 
 # Formats to be avoided
 *.RData
