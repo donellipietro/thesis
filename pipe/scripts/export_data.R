@@ -6,7 +6,7 @@ graphics.off()
 # Libraries ----
 # ||||||||||||||
 
-library(softImpute)
+# library(softImpute)
 
 
 # ||||||||||||||||
@@ -21,7 +21,7 @@ start <- 1000
 end <- 2629
 
 # Data
-DATA <- read.csv("../data/Test1_strain.csv")
+DATA <- read.csv("../data/Test2_strain.csv")
 pressure <- DATA[, dim(DATA)[2]]
 strains_all <- DATA[, start:end]
 distance <- step*(1:dim(strains_all)[2])
@@ -36,7 +36,7 @@ for(i in 1:experiments.number){
 }
 
 experiment.type.names <- c("alpha10","alpha20")
-experiment.type.indexes <- list("alpha10" = c(581, 581+949-1), "alpha20" = c(1, 495))
+experiment.type.indexes <- list("alpha10" = c(565, 565+949-1), "alpha20" = c(10, 10+495-1))
 
 if(UNROLLED == TRUE){
   # Sensors location
@@ -58,7 +58,7 @@ for(i in 1:experiments.number){
   # for(j in 2:10){
   #   points(as.numeric(distance), as.numeric(strains[[experiments.names[i]]][j,]), type = "l", col = rainbow(10)[i])
   # }
-  abline(v = c(1, 495, 581, 581+949)*0.01, col = "red", lwd = 2, lty = 2)
+  abline(v = c(experiment.type.indexes[[1]], experiment.type.indexes[[2]])*0.01, col = "red", lwd = 2, lty = 2)
 }
 
 

@@ -11,11 +11,13 @@ def.par = par()
 # Libraries ----
 # ||||||||||||||
 
+library(ggplot2)
+theme_set(theme_bw())
+
+
 library(plot3D)
 library(fdaPDE)
 
-library(ggplot2)
-theme_set(theme_bw())
 
 library(concaveman)
 library(tidyverse)
@@ -281,7 +283,8 @@ nc2 <- dim(clustered_holes[[3]])[1]
 
 nodes <-rbind(polygons, 
               clustered_holes[[1]],
-              clustered_holes[[3]])
+              clustered_holes[[3]],
+              X_new)
 segments <- rbind(data.frame(V1 = 1:np, V2 = c(2:np, 1)),
                   data.frame(V1 = (np+1):(np+nc1), V2 = c((np+2):(np+nc1), (np+1))), 
                   data.frame(V1 = (np+nc1+1):(np+nc1+nc2), V2 = c((np+nc1+2):(np+nc1+nc2), (np+nc1+1))))
@@ -290,7 +293,7 @@ holes <- rbind(colMeans(clustered_holes[[1]]),
               colMeans(clustered_holes[[3]]))
 
 mesh <- create.mesh.2D(nodes, segments = segments, holes = holes)
-mesh <- refine.mesh.2D(mesh, minimum_angle = 30, maximum_area = 50)
+#mesh <- refine.mesh.2D(mesh, minimum_angle = 30, maximum_area = 50)
 plot(mesh,  main = "Mesh", asp = 1)
 points(X_new, pch = 20, col = "blue", cex = 1)
 

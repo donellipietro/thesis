@@ -8,6 +8,8 @@ graphics.off()
 # Libraries ----
 # ||||||||||||||
 
+
+library(fdaPDE)
 library(fdaPDE2)
 library(pracma)
 library(plot3D)
@@ -122,14 +124,14 @@ n_locations = n_spatial_locations
 # Field
 # |||||
 
-N <- 120
+N <- 50
 X_clean_locations = NULL
 noise_locations = NULL
 
 for(n in 1:N){
   
   func_evaluation_locations <- numeric(nrow(locations))
-  func_evaluation_locations <- generate_X(locations, 2)
+  func_evaluation_locations <- generate_X(locations, 1)
   
   noise_locations <- rbind(noise_locations, stats::rnorm(nrow(locations), mean = 0, sd = 0.2))
   X_clean_locations <- rbind(X_clean_locations, func_evaluation_locations)
@@ -146,9 +148,9 @@ X_locations = X_clean_locations + noise_locations
 plot_field(nodes, locations, X_locations[1,], range(X_locations), "Data at locations, noisy", TRUE)
 
 
-# |||||||||||||||
-# fPCA model ----
-# |||||||||||||||
+# |||||||||||||||||
+# fSRPDE model ----
+# |||||||||||||||||
 
 ## set model
 pde <- new(Laplacian_2D_Order1, mesh_data)
@@ -159,26 +161,18 @@ f <- as.matrix(rep(0., times = dim(quadrature_nodes)[1]))
 pde$set_forcing_term(as.matrix(f))
 
 ## define and init model
-model <- new(FPCA_Laplacian_2D_GeoStatLocations, pde)
+model <- new(FSRPDE_Laplacian_2D_GeoStatLocations, pde)
 model$set_locations(locations)
-lambda_s <- 10^seq(-4.0, -3.0, by = 0.1)
-model$set_lambdas(lambda_s)
-model$init_regularization()
+lambda_s <- 10
+model$set_lambda_s(lambda_s)
 
 
 ## extract principal components
 model$set_observations(X_locations)
 model$solve()
 
-load1 <- model$loadings()[, 1]
-load2 <- model$loadings()[, 2]
-load3 <- model$loadings()[, 3]
-scor1 <- model$scores()[, 1]
-scor2 <- model$scores()[, 2]
-scor3 <- model$scores()[, 3]
+f <- model$f()
+fitted <- model$fitted()
 
-plot_field(nodes, locations, load1, range(load1), "load1", TRUE)
-plot_field(nodes, locations, load2, range(load1), "load2", TRUE)
-plot_field(nodes, locations, load3, range(load1), "load3", TRUE)
-
-
+plot_field(nodes, nodes, f, range(f), "Denoised data (nodes)", TRUE)
+plot_field(nodes, locations, fitted, range(fitted), "Denoised data (locations)", TRUE)

@@ -141,6 +141,12 @@ ds <- 0.03
 
 overlap = c(-pi/3-pi, pi + pi/3)
 
+
+dir <- paste("../data/fdaPDE_data/", sep = '')
+if (!file.exists(dir)){
+  dir.create(dir)
+}
+
 dir <- paste("../data/fdaPDE_data/mesh/", sep = '')
 if (!file.exists(dir)){
   dir.create(dir)
