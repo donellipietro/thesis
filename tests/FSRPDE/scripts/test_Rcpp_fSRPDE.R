@@ -3,18 +3,19 @@
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 rm(list = ls())
-graphics.off()
+# graphics.off()
 def.par = par()
 
 cat("\n%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
 cat("\n%% Test fSRPDE Rcpp wrapper %%")
-cat("\n%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n")
+cat("\n%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n\n")
 
 
 # ||||||||||||||
 # Libraries ----
 # ||||||||||||||
 
+library(fdaPDE)
 library(fdaPDE2)
 library(pracma)
 library(plot3D)
@@ -24,36 +25,39 @@ library(plot3D)
 # Functions ----
 # ||||||||||||||
 
-load("../../utils/tests_unit_square.RData")
-load("../../utils/plot_field.RData")
+load("../../utils/functions/tests_unit_square.RData")
+load("../../utils/functions/plot_field.RData")
+load("../../utils/functions/import_fdaPDE_mesh.RData")
 load("scripts/functions/generate_data.RData")
+
 
 # ||||||||||||||||||||
 # Test parameters ----
 # ||||||||||||||||||||
 
-# Number of nodes (on the side)
-n.nodes <- 31
-
-# Number of locations (on the side)
-n.locations <- 60
+# Mesh
+mesh.path <- "../../fdaPDE/test/data/mesh/unit_square_medium/"
 
 # Number of statistical units
 N <- 120
+
+# To force the generation of the field
+FORCE_GENERATION = TRUE
 
 
 # |||||||||
 # Data ----
 # |||||||||
 
-data.name <- paste("data_", N, ".RData", sep = "")
+data.name <- paste("data_", X.index, "_", N, ".RData", sep = "")
 data.path <- paste("data/", data.name, sep = "")
 
-if(!file.exists(data.path)){
+if(!file.exists(data.path) | FORCE_GENERATION){
   cat("\n# ||||||||||||||||||||")
   cat("\n# Generating data ----")
   cat("\n# ||||||||||||||||||||\n")
-  generate_data(n.nodes, n.locations, N, data.path)
+  generate_data(N, mesh.path, data.path, 
+                generate_X)
 }
 
 cat("\n# |||||||||||||||||")

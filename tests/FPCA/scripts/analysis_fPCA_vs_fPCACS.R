@@ -25,8 +25,8 @@ library(tictoc)
 # Functions ----
 # ||||||||||||||
 
-load("../../utils/tests_unit_square.RData")
-load("../../utils/plot_field.RData")
+load("../../utils/functions/tests_unit_square.RData")
+load("../../utils/functions/plot_field.RData")
 load("scripts/functions/generate_data.RData")
 
 
@@ -164,6 +164,7 @@ save(data.path,
 
 
 cat("\n\n\n")
+
 
 # ||||||||||||
 # Results ----

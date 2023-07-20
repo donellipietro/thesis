@@ -24,8 +24,8 @@ library(plot3D)
 # Functions ----
 # ||||||||||||||
 
-load("../../utils/tests_unit_square.RData")
-load("../../utils/plot_field.RData")
+load("../../utils/functions/tests_unit_square.RData")
+load("../../utils/functions/plot_field.RData")
 load("scripts/functions/generate_data.RData")
 
 

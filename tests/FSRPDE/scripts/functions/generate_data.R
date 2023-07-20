@@ -1,14 +1,34 @@
-generate_data <- function(n.nodes, n.locations, N, data.path) {
+generate_data <- function(N, mesh.path, data.path, generate_X, options = data.frame(), mesh_finer.path = "", mesh.area_refine = 0) {
+  
+  ## Options ----
+  ## ||||||||||||
+  
+  if("X.index" %in% colnames(options)){
+    X.index <- options$X.index
+  } else{
+    X.index <- 1
+  }
+  
+  if("NSR" %in% colnames(options)){
+    NSR.X <- as.numeric(options$NSR)
+  } else {
+    NSR.X <- (1/3)^2
+  }
+  
   
   ## Domain ----
   ## |||||||||||
   
-  # Set square domain
-  K <- n.nodes^2
-  x <- seq(0, 1, length.out = n.nodes)
-  y <- x
-  nodes <- expand.grid(x, y)
-  mesh <- fdaPDE::create.mesh.2D(nodes)
+  # Mesh
+  mesh_import <- import_fdaPDE_mesh(mesh.path, FALSE)
+  mesh <- mesh_import$mesh
+  if(mesh_import$check){
+    # cat("Mesh imported correctly\n")
+  } else{ 
+    # cat("Error in importing the mesh\n")
+  }
+  nodes <- mesh$nodes
+  K <- dim(nodes)[1]
   
   # Prepare list data structure
   mesh_data <- list(
@@ -19,30 +39,40 @@ generate_data <- function(n.nodes, n.locations, N, data.path) {
     "boundary" = mesh$nodesmarkers
   )
   
-  
-  ## Locations ----
-  ## ||||||||||||||
-  
-  S <- n.locations^2
-  x <- seq(0, 1, length.out = n.locations)
-  y <- x
-  locations <- as.matrix(expand.grid(x, y))
+  # Locations
+  mesh_finer <- mesh
+  if(mesh_finer.path != ""){
+    mesh_import <- import_fdaPDE_mesh(mesh_finer.path, FALSE)
+    mesh_finer <- mesh_import$mesh
+    if(mesh_import$check){
+      # cat("Mesh imported correctly\n")
+    } else{
+      # cat("Error in importing the mesh\n")
+    }
+  }
+  if(mesh.area_refine != 0) {
+    mesh_finer <- refine.mesh.2D(mesh_finer, minimum_angle = 30, maximum_area = mesh.area_refine, delaunay = TRUE)
+  } else {
+    mesh_finer <- refine.by.splitting.mesh.2D(mesh_finer)
+  }
+  locations <- mesh_finer$nodes
+  S <- dim(locations)[1]
   
   
   ## Field ----
   ## ||||||||||
   
-  data_clean = NULL
-  noise = NULL
+  # Data & noise
+  func_evaluation_locations <- generate_X(locations, X.index)
+  data_clean <- matrix(func_evaluation_locations, nrow = N, ncol = S, byrow = TRUE)
   
-  for(n in 1:N){ 
+  #Noise
+  # NSR.X = sigma_noise^2/Var(X)
+  # => sigma_noise^2 = NSR.X*Var(X)
+  sigma_noise <- sqrt(NSR.X*var(func_evaluation_locations))
+  # cat(paste("Sigma used:", sigma_noise))
+  noise <- matrix(rnorm(S*N, mean = 0, sd = sigma_noise), nrow = N, ncol = S, byrow = TRUE)
     
-    func_evaluation_locations <- generate_X(locations, 2)
-    
-    noise <- rbind(noise, stats::rnorm(nrow(locations), mean = 0, sd = 0.2))
-    data_clean <- rbind(data_clean, func_evaluation_locations)
-  }
-  
   # Rename cols
   rownames(noise) <- 1:N
   rownames(data_clean) <- 1:N
@@ -57,6 +87,7 @@ generate_data <- function(n.nodes, n.locations, N, data.path) {
        nodes, locations, mesh_data,
        data, data_clean,
        file = data.path)
+  
 }
 
 save(generate_data, file = "scripts/functions/generate_data.RData")

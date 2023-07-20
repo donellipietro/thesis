@@ -45,25 +45,16 @@
 # Transcriptomics
 !transcriptomics/
 !transcriptomics/*
-# !transcriptomics/data/
-# !transcriptomics/data/*
-# !transcriptomics/data/DLPFC/
-# !transcriptomics/data/DLPFC/*
-# !transcriptomics/data/masks/
-# !transcriptomics/data/masks/*
 !transcriptomics/scripts/
 !transcriptomics/scripts/*
 !transcriptomics/scripts/functions/
 !transcriptomics/scripts/functions/*
 
-# Pipe
+# Projects: Pipe
 !pipe/
 !pipe/*
 !pipe/scripts/
 !pipe/scripts/*
-!pipe/data/
-!pipe/data/*
-
 
 # Formats to be avoided
 *.RData
