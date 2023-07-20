@@ -4,19 +4,43 @@
 # gitignore
 !.gitignore
 
-# Examples and tests
+# Makefile
+!Makefile
+
+# Utils
+!utils/
+!utils/*
+!utils/functions/
+!utils/functions/*
+
+# Tests
+!tests/
+!tests/*
+
+# Tests: fPCA
+!tests/FPCA/
+!tests/FPCA/*
+!tests/FPCA/scripts/
+!tests/FPCA/scripts/*
+
+# Tests: fSRPDE
+!tests/FSRPDE/
+!tests/FSRPDE/*
+!tests/FSRPDE/scripts/
+!tests/FSRPDE/scripts/*
+!tests/FSRPDE/scripts/functions/
+!tests/FSRPDE/scripts/functions/*
+
+
+# 
 !examples_and_tests/
 !examples_and_tests/PLS/
 !examples_and_tests/PLS/*
-!examples_and_tests/
-!examples_and_tests/FSRPDE/
-!examples_and_tests/FSRPDE/*
 !examples_and_tests/FPLSR/
 !examples_and_tests/FPLSR/*
 !examples_and_tests/FPLSR/scripts/*
 !examples_and_tests/FPLSR/scripts/functions/*
-!examples_and_tests/FPCA/
-!examples_and_tests/FPCA/*
+
 
 # Transcriptomics
 !transcriptomics/
