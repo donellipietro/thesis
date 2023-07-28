@@ -50,11 +50,16 @@
 !transcriptomics/scripts/functions/
 !transcriptomics/scripts/functions/*
 
+# Projects
+!projects/
+
 # Projects: Pipe
-!pipe/
-!pipe/*
-!pipe/scripts/
-!pipe/scripts/*
+!projects/pipe/
+!projects/pipe/*
+!projects/pipe/scripts/
+!projects/pipe/scripts/*
+!projects/pipe/scripts/functions/
+!projects/pipe/scripts/functions/*
 
 # Formats to be avoided
 *.RData
