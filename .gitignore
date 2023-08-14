@@ -22,6 +22,8 @@
 !tests/FPCA/*
 !tests/FPCA/scripts/
 !tests/FPCA/scripts/*
+!tests/FPCA/scripts/functions/
+!tests/FPCA/scripts/functions/*
 
 # Tests: fSRPDE
 !tests/FSRPDE/
