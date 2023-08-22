@@ -6,28 +6,25 @@ SCRIPTS_DIR := scripts
 FUNCTIONS_DIR := scripts/functions
 
 # Get a list of all R scripts
-TEST_SCRIPTS := $(wildcard $(SCRIPTS_DIR)/test*.R)
-ANALYSIS_SCRIPTS := $(wildcard $(SCRIPTS_DIR)/analysis*.R)
 FUNCTIONS_SCRIPTS := $(wildcard $(FUNCTIONS_DIR)/*.R)
 
 # List of the calls
-TESTS := $(patsubst %.R,%.RExec,$(TEST_SCRIPTS))
-ANALYSIS := $(patsubst %.R,%.RExec,$(ANALYSIS_SCRIPTS))
 FUNCTIONS := $(patsubst %.R,%.RData,$(FUNCTIONS_SCRIPTS))
 
 # Targets
-.PHONY: all run_tests run_analysis build clean distclean
+.PHONY: all generate_mesh hyperparameters_tuning build clean distclean
 
-# Default target (all): Run all the main tasks
-all: run_tests run_analysis
+# Target: generate_mesh
+# Generate the mesh for all the datasets
+generate_mesh: build scripts/generate_mesh.RExec
 
-# Target: run_tests
-# Execute test R scripts
-run_tests: build $(TESTS)
+# Target: hyperparameters_tuning
+# Perform hyper-parameters tuning for DLPFC data
+hyperparameters_tuning: build scripts/hyperparameters_tuning.RExec
 
-# Target: run_analysis
-# Execute analysis R scripts
-run_analysis: build $(ANALYSIS)
+# Target: preprocess_data
+# Preprocess the data and export csv files
+# preprocess_data: build scripts/preprocess_data.RExec
 
 # Target: build
 # Build the functions and directories needed

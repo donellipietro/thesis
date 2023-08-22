@@ -43,15 +43,6 @@
 !examples_and_tests/FPLSR/scripts/*
 !examples_and_tests/FPLSR/scripts/functions/*
 
-
-# Transcriptomics
-!transcriptomics/
-!transcriptomics/*
-!transcriptomics/scripts/
-!transcriptomics/scripts/*
-!transcriptomics/scripts/functions/
-!transcriptomics/scripts/functions/*
-
 # Projects
 !projects/
 
@@ -62,6 +53,14 @@
 !projects/pipe/scripts/*
 !projects/pipe/scripts/functions/
 !projects/pipe/scripts/functions/*
+
+# Projects: Transcriptomics
+!projects/transcriptomics/
+!projects/transcriptomics/*
+!projects/transcriptomics/scripts/
+!projects/transcriptomics/scripts/*
+!projects/transcriptomics/scripts/functions/
+!projects/transcriptomics/scripts/functions/*
 
 # Formats to be avoided
 *.RData
