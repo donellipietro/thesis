@@ -6,12 +6,10 @@ UTILS_FUNCTIONS_DIR := utils/functions
 UTILS_DIR := utils/
 
 # Get a list of all R scripts
-UTILS_FUNCTION_SCRIPTS := $(wildcard $(UTILS_FUNCTION_DIR)/*.R)
-UTILS_SCRIPTS := $(wildcard $(UTILS_DIR)/*.R)
+UTILS_FUNCTIONS_SCRIPTS := $(wildcard $(UTILS_FUNCTIONS_DIR)/*.R)
 
 # List of the calls
-UTILS_FUNCTION := $(patsubst %.R,%.RData,$(UTILS_FUNCTION_SCRIPTS))
-UTILS := $(patsubst %.R,%.RData,$(UTILS_SCRIPTS))
+UTILS_FUNCTIONS := $(patsubst %.R,%.RData,$(UTILS_FUNCTIONS_SCRIPTS))
 
 # Targets
 .PHONY: all build clean
@@ -21,18 +19,19 @@ all: build
 
 # Target: build
 # Build the functions needed
-build: $(UTILS_FUNCTION)
+build: $(UTILS_FUNCTIONS)
 
 # Target: clean
 # Clean intermediate files
 clean:
-	$(RM) $(UTILS_FUNCTION_DIR)/*.RData
+	$(RM) $(UTILS_FUNCTIONS_DIR)/*.RData
 
 # Target: install_fdaPDE
 # Install fdaPDE core
+DIR_TO_CHECK := fdaPDE
 install_fdaPDE:
-	@if [ -d $("/fdaPDE") ]; then \
-        echo "fdaPDE repository already exists."; \
+	@if [ -d $(DIR_TO_CHECK) ]; then \
+    	echo "fdaPDE repository already exists."; \
     else \
 		echo "Cloning fdaPDE repository."; \
         git clone https://github.com/donellipietro/fdaPDE.git; \
