@@ -112,7 +112,8 @@ generate_data <- function(N, data.path, options) {
                                 byrow = TRUE)
   
   # Noise
-  noise <- rnorm(n = N * n.locations, sd = sd.error * truedatarange)
+  noise <- matrix(rnorm(n = ncol(data_clean) * nrow(data_clean), sd = sd.error * truedatarange),
+                  nrow = nrow(data_clean), ncol = ncol(data_clean))
   
   # Data
   data <- data_clean + noise
