@@ -8,4 +8,3 @@ auth_token <- "github_pat_11AIHJHSA0KhSt6IrjO60F_wXU7foSfYfFyEFmtfFlQfAn70LjIW9F
 
 # Install the package from GitHub
 devtools::install_github("hhroig/pR1FPLS", auth_token = auth_token)
-1
