@@ -1,5 +1,5 @@
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-# %% Test fSRPDE Rcpp wrapper %%
+# %% Test FRPDE Rcpp wrapper %%
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 rm(list = ls())
@@ -7,7 +7,7 @@ rm(list = ls())
 def.par = par()
 
 cat("\n%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
-cat("\n%% Test fSRPDE Rcpp wrapper %%")
+cat("\n%% Test FRPDE Rcpp wrapper %%")
 cat("\n%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n\n")
 
 
@@ -40,6 +40,10 @@ mesh.path <- "../../fdaPDE/test/data/mesh/unit_square_medium/"
 
 # Number of statistical units
 N <- 120
+
+# Options
+X.index <- 1
+data.name <- "test"
 
 # To force the generation of the field
 FORCE_GENERATION = TRUE
@@ -84,7 +88,7 @@ pde$set_forcing_term(as.matrix(f))
 
 # Define and init model
 lambda_s <- 1e-4
-model <- new(FSRPDE_Laplacian_2D_GeoStatLocations, pde)
+model <- new(FRPDE_Laplacian_2D_GeoStatLocations, pde)
 model$set_locations(locations)
 model$set_lambda_s(lambda_s)
 

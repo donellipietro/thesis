@@ -25,13 +25,13 @@
 !tests/FPCA/scripts/functions/
 !tests/FPCA/scripts/functions/*
 
-# Tests: fSRPDE
-!tests/FSRPDE/
-!tests/FSRPDE/*
-!tests/FSRPDE/scripts/
-!tests/FSRPDE/scripts/*
-!tests/FSRPDE/scripts/functions/
-!tests/FSRPDE/scripts/functions/*
+# Tests: FRPDE
+!tests/FRPDE/
+!tests/FRPDE/*
+!tests/FRPDE/scripts/
+!tests/FRPDE/scripts/*
+!tests/FRPDE/scripts/functions/
+!tests/FRPDE/scripts/functions/*
 
 
 # 

@@ -63,6 +63,7 @@ generate_data <- function(N, mesh.path, data.path, generate_X, options = data.fr
   ## ||||||||||
   
   # Data & noise
+  set.seed(0)
   func_evaluation_locations <- generate_X(locations, X.index)
   data_clean <- matrix(func_evaluation_locations, nrow = N, ncol = S, byrow = TRUE)
   
@@ -71,6 +72,7 @@ generate_data <- function(N, mesh.path, data.path, generate_X, options = data.fr
   # => sigma_noise^2 = NSR.X*Var(X)
   sigma_noise <- sqrt(NSR.X*var(func_evaluation_locations))
   # cat(paste("Sigma used:", sigma_noise))
+  set.seed(round(NSR.X*1000))
   noise <- matrix(rnorm(S*N, mean = 0, sd = sigma_noise), nrow = N, ncol = S, byrow = TRUE)
     
   # Rename cols

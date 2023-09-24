@@ -90,7 +90,7 @@ test.options <- list(
 # List of test options names
 test.options_names <- list(
   mesh.name_vect = mesh.name_vect,
-  X.index = paste("xi", c(1,2), sep = ""),
+  X.index = paste("xi", X.index_vect, sep = ""),
   NSR_vect = paste("nl", 1:length(NSR_vect), sep = "")
 )
 
@@ -117,7 +117,9 @@ if (!file.exists(results.directory)){
   dir.create(results.directory)
 }
 
-lambda_s <- c(1e-4, 1e-6)
+lambda_s <- list()
+lambda_s[["unit_square_medium"]] <- c(1e-3, 1e-5)
+lambda_s[["c_shaped"]] <- c(1e-5, 1e-6)
 
 errors <- matrix(0, nrow = N.batches, ncol = dim(test.options)[1])
 data.examples <- list()
@@ -149,9 +151,9 @@ for(i in 1:dim(test.options)[1]){
   
   # Define and init model
   
-  model <- new(FSRPDE_Laplacian_2D_GeoStatLocations, pde)
+  model <- new(FRPDE_Laplacian_2D_GeoStatLocations, pde)
   model$set_locations(locations)
-  model$set_lambda_s(lambda_s[as.numeric(test.options$X.index[i])])
+  model$set_lambda_s(lambda_s[[test.options$mesh.name[i]]][as.numeric(test.options$X.index[i])])
   
   # Generate a grouping variable for split
   group_var <- rep(1:N, each = N %/% N.batches, length.out =  N)
@@ -169,7 +171,7 @@ for(i in 1:dim(test.options)[1]){
     model$solve()
     
     # Results
-    errors[j,i] <- norm(data_clean[1,] - model$fitted())/S
+    errors[j,i] <- norm(data_clean[1,] - model$fitted())/sqrt(S)
   
   }
   
@@ -223,7 +225,7 @@ for(m in 1:length(mesh.name_vect)){
     for(j in 1:length(NSR_vect)){
       
       jpeg(paste(images.directory, "comparison_",test.options$test.name[selected[j]], ".jpg", sep = ""),
-           width = 2000, height = 2000, units = "px", quality = 100, pointsize = 37,
+           width = 1000, height = 1000, units = "px", quality = 100, pointsize = 21,
            type = "windows")
       
       par(mfrow = c(2, 2), mar = c(1,1,1,1), oma = c(0,0,1,0))
@@ -250,9 +252,9 @@ for(m in 1:length(mesh.name_vect)){
       
       plot_field(nodes.examples[[selected[j]]],
                  locations.examples[[selected[j]]],
-                 data_clean.examples[[selected[j]]] - results[[selected[j]]],
+                 data.examples[[selected[j]]] - results[[selected[j]]],
                  range,
-                 "Error", FALSE)
+                 "Suppressed noise", FALSE)
       
       title(paste("NSR =", round(NSR_vect[j], digits = 2)), outer = TRUE, line = 2, cex.main = 2)
       
@@ -268,18 +270,16 @@ cat("\nMSE boxplots")
 for(m in 1:length(mesh.name_vect)){
   for(i in 1:length(X.index_vect)){
     
-    jpeg(paste(images.directory, "boxplot_", mesh.name_vect[m], "_xi", X.index_vect[i], ".jpg", sep = ""), width = 2000, height = 1500, units = "px", quality = 100, pointsize = 37)
+    jpeg(paste(images.directory, "boxplot_", mesh.name_vect[m], "_xi", X.index_vect[i], ".jpg", sep = ""), width = 1000, height = 750, units = "px", quality = 100, pointsize = 21)
     
     selected <- which(test.options$X.index == X.index_vect[i] & test.options$mesh.name == mesh.name_vect[m])
       
     par(mfrow = c(1,1), mar = def.par$mar, omi = def.par$omi)
     boxplot(errors[, selected],
-            xlab = "Noise level", ylab = "MSE",
-            col = colors,
-            main = paste("Mesh:", mesh.name_vect[m], "| X.index =", X.index_vect[i]))
+            xlab = "Noise level", xaxt = "n",
+            main = "RMSE")
+    axis(1, at=1:length(selected), labels=paste("NSR = ", round(NSR_vect, digits = 2)))
     grid()
-    legend("topleft", paste("NSR =", round(NSR_vect, digits = 2)),
-           col = colors, pch = 15)
     
     dev.off()
     
@@ -288,3 +288,4 @@ for(m in 1:length(mesh.name_vect)){
 
 
 cat("\n\n\n")
+
