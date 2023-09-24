@@ -33,15 +33,13 @@
 !tests/FRPDE/scripts/functions/
 !tests/FRPDE/scripts/functions/*
 
-
-# 
-!examples_and_tests/
-!examples_and_tests/PLS/
-!examples_and_tests/PLS/*
-!examples_and_tests/FPLSR/
-!examples_and_tests/FPLSR/*
-!examples_and_tests/FPLSR/scripts/*
-!examples_and_tests/FPLSR/scripts/functions/*
+# Tests: fPLSR
+!tests/fPLSR/
+!tests/fPLSR/*
+!tests/fPLSR/scripts/
+!tests/fPLSR/scripts/*
+!tests/fPLSR/scripts/functions/
+!tests/fPLSR/scripts/functions/*
 
 # Projects
 !projects/

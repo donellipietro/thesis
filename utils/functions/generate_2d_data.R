@@ -60,7 +60,7 @@
 #                          N,                                                     # samples
 #                          generate_X, X.index, generate_B, B.indexes,            # tests
 #                          STRATEGY, NSR.Y,                                       # noise
-#                          PLOTS, FALSE)                                           # plots
+#                          PLOTS, FALSE)                                          # plots
   
   
 # |||||||||||||
@@ -70,9 +70,10 @@
 generate_2D_data <- function(mesh.name, mesh_finer.name, mesh.area_refine,      # mesh
                              number.locations_per_element,                      # locations
                              N,                                                 # samples
-                             generate_X, X.index, generate_B, B.indexes,            # tests
+                             generate_X, X.index, generate_B, B.indexes,        # tests
                              STRATEGY, NSR.Y,                                   # noise
-                             PLOTS, SHOW)                                       # plots
+                             PLOTS, SHOW,
+                             VERBOSE = FALSE)                                   # plots
 {
   
   def.par = par()
@@ -81,11 +82,13 @@ generate_2D_data <- function(mesh.name, mesh_finer.name, mesh.area_refine,      
   # Mesh ----
   # |||||||||
   
-  cat("\n")
-  cat("# |||||||||\n")
-  cat("# Mesh ----\n")
-  cat("# |||||||||\n")
-  cat("\n")
+  if(VERBOSE){
+    cat("\n")
+    cat("# |||||||||\n")
+    cat("# Mesh ----\n")
+    cat("# |||||||||\n")
+    cat("\n")
+  }
   
   meshes.directory <- "../../fdaPDE/test/data/mesh/"
   
@@ -93,10 +96,12 @@ generate_2D_data <- function(mesh.name, mesh_finer.name, mesh.area_refine,      
   mesh.directory <- paste(meshes.directory, mesh.name, "/", sep = "")
   mesh_import <- import_fdaPDE_mesh(mesh.directory, FALSE)
   mesh <- mesh_import$mesh
-  if(mesh_import$check){
-    cat("Mesh imported correctly\n")
-  } else{ 
-    cat("Error in importing the mesh\n")
+  if(VERBOSE){
+    if(mesh_import$check){
+      cat("Mesh imported correctly\n")
+    } else{ 
+      cat("Error in importing the mesh\n")
+    }
   }
   nodes <- mesh$nodes
   
@@ -106,10 +111,12 @@ generate_2D_data <- function(mesh.name, mesh_finer.name, mesh.area_refine,      
     mesh.directory <- paste(meshes.directory, mesh_finer.name, "/", sep = "")
     mesh_import <- import_fdaPDE_mesh(mesh.directory, FALSE)
     mesh_finer <- mesh_import$mesh
-    if(mesh_import$check){
-      cat("Mesh imported correctly\n")
-    } else{
-      cat("Error in importing the mesh\n")
+    if(VERBOSE){
+      if(mesh_import$check){
+        cat("Mesh imported correctly\n")
+      } else{
+        cat("Error in importing the mesh\n")
+      }
     }
   }
   if(mesh.area_refine != 0) {
@@ -149,11 +156,13 @@ generate_2D_data <- function(mesh.name, mesh_finer.name, mesh.area_refine,      
   # Show ----
   # |||||||||
   
-  cat("\n")
-  cat("# |||||||||||||||\n")
-  cat("# Show tests ----\n")
-  cat("# |||||||||||||||\n")
-  cat("\n")
+  if(VERBOSE){
+    cat("\n")
+    cat("# |||||||||||||||\n")
+    cat("# Show tests ----\n")
+    cat("# |||||||||||||||\n")
+    cat("\n")
+  }
   
   if(SHOW){
     show_tests(nodes_finer)
@@ -165,11 +174,13 @@ generate_2D_data <- function(mesh.name, mesh_finer.name, mesh.area_refine,      
   # Locations ----
   # ||||||||||||||
   
-  cat("\n")
-  cat("# |||||||||||||||\n")
-  cat("# Locations ----\n")
-  cat("# |||||||||||||||\n")
-  cat("\n")
+  if(VERBOSE){
+    cat("\n")
+    cat("# |||||||||||||||\n")
+    cat("# Locations ----\n")
+    cat("# |||||||||||||||\n")
+    cat("\n")
+  }
   
   # Random locations generation
   # For each element number.locations_per_element locations are randomly picked 
@@ -197,11 +208,13 @@ generate_2D_data <- function(mesh.name, mesh_finer.name, mesh.area_refine,      
   # Data ----
   # |||||||||
   
-  cat("\n")
-  cat("# |||||||||\n")
-  cat("# Data ----\n")
-  cat("# |||||||||\n")
-  cat("\n")
+  if(VERBOSE){
+    cat("\n")
+    cat("# |||||||||\n")
+    cat("# Data ----\n")
+    cat("# |||||||||\n")
+    cat("\n")
+  }
   
   # Room for data:
   X_clean_nodes = NULL
@@ -214,7 +227,8 @@ generate_2D_data <- function(mesh.name, mesh_finer.name, mesh.area_refine,      
   ## X data ----
   ## |||||||||||
   
-  cat("- X field\n")
+  if(VERBOSE)
+    cat("- X field\n")
   
   for(n in 1:N){
     
@@ -277,7 +291,8 @@ generate_2D_data <- function(mesh.name, mesh_finer.name, mesh.area_refine,      
   ## B coefficients function ----
   ## ||||||||||||||||||||||||||||
   
-  cat("- B coefficients function\n")
+  if(VERBOSE)
+    cat("- B coefficients function\n")
   
   # Room for data:
   B = NULL
@@ -300,7 +315,8 @@ generate_2D_data <- function(mesh.name, mesh_finer.name, mesh.area_refine,      
   ## Y data ----
   ## |||||||||||
   
-  cat("- Y data\n")
+  if(VERBOSE)
+    cat("- Y data\n")
   
   # No-noise Y:
   if(STRATEGY == 1)
