@@ -88,31 +88,59 @@ cat("- Loading raw data \n")
 list.files(data.directory)
 list.files(paste(data.directory, "DLPFC/", sep = ""))
 load(paste(data.directory, "DLPFC/LIBD_sample9.RData", sep = ""))
+location <- xy_coords
+xy_coords <- data.frame(location)
+colnames(xy_coords) <- c("x_coord", "y_coord")
+
+# Data pre-processing
+location = as.matrix(location)
+rownames(location) = colnames(count_sub)
+DLPFC <- CreateSpatialPCAObject(counts = count_sub, location = location,
+                                project = "SpatialPCA", 
+                                gene.type = "spatial", sparkversion = "sparkx",
+                                customGenelist = NULL,
+                                min.loctions = 20, min.features = 20) 
+data <- DLPFC@normalized_expr
+cellnames <- colnames(data)
+rownames(xy_coords) = colnames(count_sub)
+xy_coords <- xy_coords[cellnames, ]
 xy_coords$ID = 1:dim(xy_coords)[1]
 
 # Na identification
 cat("- Na identification \n")
 na.indexes <- is.na(Layer_sub)
 
-# "Islands" identification
-cat("- Islands identification \n")
-k <- 5
-knn_result <- get.knn(xy_coords[,1:2], k)
-xy_coords$avg_distance <- rowMeans(knn_result$nn.dist)
-threshold <- 1.6 * mean(xy_coords$avg_distance)
-islands.indexes <- xy_coords$avg_distance > threshold
+# # "Islands" identification
+# cat("- Islands identification \n")
+# k <- 5
+# knn_result <- get.knn(xy_coords[,1:2], k)
+# xy_coords$avg_distance <- rowMeans(knn_result$nn.dist)
+# threshold <- 1.6 * mean(xy_coords$avg_distance)
+# islands.indexes <- xy_coords$avg_distance > threshold
+
+# indexes <- !na.indexes & !islands.indexes
+# locations <- xy_coords[indexes, c("x_coord", "y_coord", "ID")]
+# mesh_gen <- generate_mesh(locations,
+#                           concavity = 2,
+#                           length_threshold = 10,
+#                           simplify_tol = 0.1,
+#                           maximum_area = 30)
+# mesh <- mesh_gen$mesh
+# final_locations_indexes <- mesh_gen$final_locations_indexes
 
 # Mesh
 cat("- Meshing \n")
-indexes <- !na.indexes & !islands.indexes
-locations <- xy_coords[indexes, c("x_coord", "y_coord", "ID")]
-mesh_gen <- generate_mesh(locations,
-                          concavity = 1,
-                          length_threshold = 15,
-                          simplify_tol = 0.1,
-                          maximum_area = 80)
-mesh <- mesh_gen$mesh
-final_locations_indexes <- mesh_gen$final_locations_indexes
+load("scripts/functions/generate_mesh_DLPFC.RData")
+result <- generate_mesh_DLPFC(xy_coords, data, as.numeric(Layer_sub),
+                              concavity = 1, 
+                              length_threshold = 12.4,
+                              simplify_tol = 0.05,
+                              maximum_area = 60)
+mesh <- result$mesh
+xy_coords <- result$xy_coords
+data <- result$data
+target <- result$target
+
 
 cat("- Plots \n")
 
@@ -120,39 +148,30 @@ cat("- Plots \n")
 p1 <- plot_mesh(mesh, plot_settings) +
       ggtitle("Mesh")
 p2 <- p1 +
-      geom_point(aes(x_coord, y_coord), xy_coords[final_locations_indexes, ], color = "blue") +
+      geom_point(aes(x_coord, y_coord), xy_coords, color = "blue") +
       ggtitle("Mesh and final locations")
 plot <- grid.arrange(p1, p2, ncol=2)
 ggsave(paste(images.directory, "DLPFC_mesh", ".jpg", sep = ""),
        plot = plot, width = 16, height = 8, dpi = 300)
 
 # Plot locations
-p1 <- plot_settings +
-      geom_point(aes(x_coord, y_coord), xy_coords, color = "purple") + 
-      geom_point(aes(x_coord, y_coord), xy_coords[final_locations_indexes, ], color = "grey") +
-      geom_point(aes(x_coord, y_coord), xy_coords[islands.indexes, ], color = "red") +
-      geom_point(aes(x_coord, y_coord), xy_coords[na.indexes, ], color = "orange") + 
-      ggtitle("Original locations")
 p2 <- plot_settings +
-      geom_point(aes(x_coord, y_coord), xy_coords[final_locations_indexes,], color = "grey") +
+      geom_point(aes(x_coord, y_coord), xy_coords, color = "grey") +
       ggtitle("Final locations")
-plot <- grid.arrange(p1, p2, ncol=2)
+plot <- grid.arrange(p2, ncol=1)
 ggsave(paste(images.directory, "DLPFC", ".jpg", sep = ""),
-       plot = plot, width = 16, height = 8, dpi = 300)
-
-
-# Ground truth
-target <- as.numeric(Layer_sub)
-locations <- xy_coords[final_locations_indexes, c("x_coord", "y_coord")]
-# plot_field(locations, locations, target, range(target),
-#            "DLPFC - LIBD_sample9", TRUE)
+       plot = plot, width = 8, height = 8, dpi = 300)
 
 # Export data
 cat("- Exporting data \n")
+locations <- xy_coords[, c("x_coord", "y_coord")]
+target <- target
+save(data, target,
+     file = paste(processed_data.directory, "DLPFC_data", ".RData", sep = ""))
 save(mesh, locations,
-     xy_coords, final_locations_indexes,
-     target, 
+     xy_coords,
      file = paste(processed_data.directory, "DLPFC_mesh", ".RData", sep = ""))
+
 
 
 # |||||||||||||||||||||||||
@@ -173,6 +192,17 @@ list.files(paste(data.directory, "SlideseqCerebellum/", sep = ""))
 load(paste(data.directory, "SlideseqCerebellum/slideseq.rds", sep = ""))
 xy_coords <- data.frame(location)
 colnames(xy_coords) <- c("x_coord", "y_coord")
+xy_coords$ID = 1:dim(xy_coords)[1]
+
+# Data pre-processing
+Slideseq_Cerebellum <- CreateSpatialPCAObject(counts = sp_count, location = location,
+                                              project = "SpatialPCA", 
+                                              gene.type = "spatial", sparkversion = "sparkx",
+                                              customGenelist = NULL,
+                                              min.loctions = 20, min.features = 20) 
+data <- Slideseq_Cerebellum@normalized_expr
+cellnames <- colnames(data)
+xy_coords <- xy_coords[cellnames, ]
 xy_coords$ID = 1:dim(xy_coords)[1]
 
 # "Islands" identification
@@ -222,9 +252,13 @@ ggsave(paste(images.directory, "SlideseqCerebellum", ".jpg", sep = ""),
 
 # Export data
 cat("- Exporting data \n")
+locations <- xy_coords[final_locations_indexes, c("x_coord", "y_coord")]
+save(data,
+     file = paste(processed_data.directory, "SlideseqCerebellum_data", ".RData", sep = ""))
 save(mesh, locations,
      xy_coords, final_locations_indexes,
      file = paste(processed_data.directory, "SlideseqCerebellum_mesh", ".RData", sep = ""))
+
 
 
 # ||||||||||||||||||||||||||
@@ -240,6 +274,17 @@ list.files(paste(data.directory, "SlideseqV2Hippocampus/", sep = ""))
 load(paste(data.directory, "SlideseqV2Hippocampus/Puck_200115_08_count_location.RData", sep = ""))
 xy_coords <- data.frame(location)
 colnames(xy_coords) <- c("x_coord", "y_coord")
+xy_coords$ID = 1:dim(xy_coords)[1]
+
+# Data pre-processing
+SlideseqV2Hippocampus <- CreateSpatialPCAObject(counts = countmat, location = location,
+                                                project = "SpatialPCA", 
+                                                gene.type = "spatial", sparkversion = "sparkx",
+                                                gene.number = 3000, customGenelist = NULL,
+                                                min.loctions = 20, min.features = 20) 
+data <- SlideseqV2Hippocampus@normalized_expr
+cellnames <- colnames(data)
+xy_coords <- xy_coords[cellnames, ]
 xy_coords$ID = 1:dim(xy_coords)[1]
 
 # "Islands" identification
@@ -258,7 +303,7 @@ mesh_gen <- generate_mesh(locations,
                           concavity = 2,
                           length_threshold = 200,
                           simplify_tol = 20,
-                          maximum_area = 4000)
+                          maximum_area = 3500)
 mesh <- mesh_gen$mesh
 final_locations_indexes <- mesh_gen$final_locations_indexes
 
@@ -289,9 +334,13 @@ ggsave(paste(images.directory, "SlideseqV2Hippocampus", ".jpg", sep = ""),
 
 # Export data
 cat("- Exporting data \n")
+locations <- xy_coords[final_locations_indexes, c("x_coord", "y_coord")]
+save(data,
+     file = paste(processed_data.directory, "SlideseqV2Hippocampus_data", ".RData", sep = ""))
 save(mesh, locations,
      xy_coords, final_locations_indexes,
      file = paste(processed_data.directory, "SlideseqV2Hippocampus_mesh", ".RData", sep = ""))
+
 
 
 # ||||||||||||||||
@@ -308,6 +357,7 @@ load(paste(data.directory, "BreastTumor/Tumor_data.RData", sep = ""))
 xy_coords <- data.frame(location)
 colnames(xy_coords) <- c("x_coord", "y_coord")
 xy_coords$ID = 1:dim(xy_coords)[1]
+target <- read.csv(paste(data.directory, "BreastTumor/HER2_TrueLabels.csv", sep = ""), header = TRUE)
 
 # location matrix: n x 2, count matrix: g x n.
 # here n is spot number, g is gene number.
@@ -317,6 +367,14 @@ ST = CreateSpatialPCAObject(counts=rawcount, location=location,
                             sparkversion="spark", gene.number=3000, 
                             customGenelist=NULL, min.loctions = 20, min.features=20)
 data <- ST@normalized_expr
+cellnames <- colnames(data)
+xy_coords <- (-1) * xy_coords[cellnames, ]
+xy_coords$ID = 1:dim(xy_coords)[1]
+row.names(target) <- cellnames
+target <- target[cellnames, ]
+
+# Transormation
+xy_coords[,1] <- (-1) * xy_coords[,1]
 
 # "Islands" identification
 cat("- Islands identification \n")
@@ -334,7 +392,7 @@ mesh_gen <- generate_mesh(locations,
                           concavity = 1,
                           length_threshold = 0,
                           simplify_tol = 0,
-                          maximum_area = 1)
+                          maximum_area = 0.2)
 mesh <- mesh_gen$mesh
 final_locations_indexes <- mesh_gen$final_locations_indexes
 
@@ -365,7 +423,10 @@ ggsave(paste(images.directory, "BreastTumor", ".jpg", sep = ""),
 
 # Export data
 cat("- Exporting data \n")
-save(data, file = paste(processed_data.directory, "BreastTumor_data", ".RData", sep = ""))
+locations <- xy_coords[final_locations_indexes, c("x_coord", "y_coord")]
+target <- target[final_locations_indexes]
+save(data, target,
+     file = paste(processed_data.directory, "BreastTumor_data", ".RData", sep = ""))
 save(mesh, locations,
      xy_coords, final_locations_indexes,
      file = paste(processed_data.directory, "BreastTumor_mesh", ".RData", sep = ""))

@@ -42,7 +42,7 @@ cat("\n# |||||||||||||||||||")
 cat("\n# Importing data ----")
 cat("\n# |||||||||||||||||||\n\n")
 
-test.name <- "Vizgen"
+test.name <- "SlideseqCerebellum" # "DLPFC", "SlideseqV2Hippocampus", "BreastTumor", "SlideseqCerebellum", Vizgen"
 TARGET <- FALSE
 REFINE <- FALSE
 
@@ -80,29 +80,61 @@ K <- dim(data)[2]
 # ||||||||||||
 
 if(TARGET)
-  target <- target[final_locations_indexes]
+  target <- target
 
 
 # |||||||||||||||||||||||||||
 # Model hyper-parameters ----
 # |||||||||||||||||||||||||||
 
-# fPCA
-lambda_vect <- 10^seq(-10, 0)
-npc_vect <- c(5, 10, 15, 20)
-npc_max <- max(npc_vect)
+hyperparameters_file <- paste("data/processed/", test.name, "_hyperparameters.RData", sep = "")
+if (!file.exists(hyperparameters_file)){
+  
+  # |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+    
+  # fPCA
+  lambda_vect <- 10^seq(-4, 0, by = 0.5)
+  npc_vect <- c(5, 10, 15, 20)
+  npc_max <- max(npc_vect)
+  
+  #  Clustering
+  clustering.algorithm.name <- "Louvain" # "Walktrap", "Louvain"
+  clusternum <- 8
+  knearest_vect <- seq(100, 220, by = 10)
+  
+  # Plots
+  pointsize <- 1.5
+  
+  save(lambda_vect, npc_vect, npc_max,
+       clustering.algorithm.name, clusternum, knearest_vect,
+       pointsize,
+       file = hyperparameters_file)
+  # |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
 
-#  Clustering
-clustering.algorithm.name <- "Louvain" # "Walktrap"
-clusternum <- 30
-knearest_vect <- seq(25, 225, by = 25)
+} else {
+  load(hyperparameters_file)
+}
+
+# Names
+lambda_vect_names <- paste("l", formatC(lambda_vect, format = "e", digits = 1), sep = "")
+npc_vect_names <- paste("npc", npc_vect, sep = "")
+knearest_vect_names <- paste("knn", knearest_vect, sep = "")
 
 # Room for results
-time <- c()
+time <- rep(0, length(lambda_vect_names))
+names(time) <- lambda_vect_names
 ARI <- matrix(0, nrow = length(lambda_vect), length(npc_vect))
+rownames(ARI) <- lambda_vect_names
+colnames(ARI) <- npc_vect_names
 ARI_refined <- matrix(0, nrow = length(lambda_vect), length(npc_vect))
+rownames(ARI_refined) <- lambda_vect_names
+colnames(ARI_refined) <- npc_vect_names
 best_knn <- matrix(0, nrow = length(lambda_vect), length(npc_vect))
+rownames(best_knn) <- lambda_vect_names
+colnames(best_knn) <- npc_vect_names
 best_knn_refined <- matrix(0, nrow = length(lambda_vect), length(npc_vect))
+rownames(best_knn_refined) <- lambda_vect_names
+colnames(best_knn_refined) <- npc_vect_names
 
 cbp = c("#1F77B4", "#FF7F0E", "#2CA02C" ,"#D62728", "#9467BD" ,"#8C564B", "#E377C2",
         "#7F7F7F", "#BCBD22", "#17BECF", "#AEC7E8" ,"#FFBB78" ,"#98DF8A", "#FF9896",
@@ -113,7 +145,6 @@ cbp = c("#1F77B4", "#FF7F0E", "#2CA02C" ,"#D62728", "#9467BD" ,"#8C564B", "#E377
         "#31A354", "#756BB1" ,"#636363", "#6BAED6" ,"#FD8D3C" ,"#74C476", "#9E9AC8",
         "#969696", "#9ECAE1" ,"#FDAE6B", "#A1D99B" ,"#BCBDDC" ,"#BDBDBD", "#C6DBEF",
         "#FDD0A2" ,"#C7E9C0" ,"#DADAEB", "#D9D9D9")
-
 
 
 # |||||||||||||
@@ -140,9 +171,9 @@ clustering <- list()
 for(l in 1:length(lambda_vect)){
   
   lambda <- lambda_vect[l]
-  clustering[[l]] <- list()
+  clustering[[lambda_vect_names[l]]] <- list()
   
-  name <- paste("l", lambda, sep = "")
+  name <- paste("l", formatC(lambda, format = "e", digits = 1), sep = "")
   images_test.directory <- paste(images.directory, name, "/", sep = "")
   
   # Create images directory
@@ -171,6 +202,7 @@ for(l in 1:length(lambda_vect)){
   model$set_npc(npc_max)
   model$set_lambda_s(lambda)
   model$set_mass_lumping(TRUE)
+  model$set_coefficients_position(2)
   model$init_regularization()
   
   # Set data
@@ -185,14 +217,10 @@ for(l in 1:length(lambda_vect)){
   
   # Results
   load <- matrix(0, nrow = npc_max, ncol = K)
-  scores <- matrix(0, nrow = dim(data)[1], ncol = npc_max)
-  weight <- c()
   for(i in 1:npc_max){
-    scores[, i] <- model$scores()[, i]
-    weight[i] <- norm(scores[, i], "2")
-    load[i, ] <- weight[i]*model$loadings()[, i]
+    load[i, ] <- temp <-  model$loadings()[, i]
     
-    jpeg(paste(images_test.directory, "load", i, ".jpg", sep = ""), width = 1500, height = 1500, units = "px", quality = 100, pointsize = 37)
+    jpeg(paste(images_test.directory, "load", i, ".jpg", sep = ""), width = 1200, height = 1200, units = "px", quality = 100, pointsize = 37)
     plot_field(nodes, locations, load[i, ], range(load[i, ]), paste("load", i, sep = ""), TRUE)
     dev.off()
   }
@@ -221,21 +249,21 @@ for(l in 1:length(lambda_vect)){
       cat(paste("- knn =", knearest_vect[i], "\n"))
       
       if(clustering.algorithm.name == "Walktrap"){ 
-        clusterlabel[[i]] = walktrap_clustering(clusternum = clusternum,
+        clusterlabel[[knearest_vect_names[i]]] = walktrap_clustering(clusternum = clusternum,
                                                 latent_dat = load[1:npc, ],
                                                 knearest = knearest_vect[i])
         if(REFINE){
-          clusterlabel_refine[[i]] = refine_cluster_10x(clusterlabels=clusterlabel[[i]],
+          clusterlabel_refine[[knearest_vect_names[i]]] = refine_cluster_10x(clusterlabels=clusterlabel[[knearest_vect_names[i]]],
                                                         locations, shape="hexagon")
         }
       }
       
       if(clustering.algorithm.name == "Louvain"){
-        clusterlabel[[i]] = louvain_clustering(clusternum = clusternum,
+        clusterlabel[[knearest_vect_names[i]]] = louvain_clustering(clusternum = clusternum,
                                                latent_dat = load[1:npc, ],
                                                knearest = knearest_vect[i])
         if(REFINE){
-          clusterlabel_refine[[i]] = refine_cluster_10x(clusterlabels=clusterlabel[[i]],
+          clusterlabel_refine[[knearest_vect_names[i]]] = refine_cluster_10x(clusterlabels=clusterlabel[[knearest_vect_names[i]]],
                                                         locations, shape="hexagon")
         }
       }
@@ -243,21 +271,21 @@ for(l in 1:length(lambda_vect)){
       
     }
     
-    clustering[[l]][[h]] <- list()
+    clustering[[lambda_vect_names[l]]][[npc_vect_names[h]]] <- list()
     
     # Clustering
-    clustering[[l]][[h]]$normal <- clusterlabel
-    ari <- rep("?", length(knearest_vect))
+    clustering[[lambda_vect_names[l]]][[npc_vect_names[h]]]$normal <- clusterlabel
+    ari <- rep(0, length(knearest_vect))
     plots <- list()
     for(i in 1:length(knearest_vect)){
-      title <- paste("knn =",knearest_vect[i])
+      title <- paste("knn =", knearest_vect[i])
       if(TARGET){
-        ari[i] <- adjustedRandIndex(target, clusterlabel[[i]])
-        title <- paste(title, "-", "ARI =", round(ari[i], digit = 2))
+        ari[i] <- adjustedRandIndex(target, clusterlabel[[knearest_vect_names[i]]])
+        title <- paste(title, "-", "ARI =", round(ari[i], digit = 3))
       }
       plots[[i]] <- plot_cluster(legend="none",location=locations,
-                                 clusterlabel[[i]],
-                                 pointsize=1,text_size=20,
+                                 clusterlabel[[knearest_vect_names[i]]],
+                                 pointsize=pointsize,text_size=20,
                                  title_in=title,
                                  color_in=cbp)
 
@@ -266,7 +294,7 @@ for(l in 1:length(lambda_vect)){
     nCol <- floor(sqrt(n))
     plot <- do.call("grid.arrange", c(plots, ncol=nCol))
     ggsave(paste(images_test.directory, "clustering_npc", npc, ".jpg", sep = ""),
-           plot = plot, width = 16, height = 16, dpi = 300)
+           plot = plot, width = 16, height = 18, dpi = 300)
     
     if(TARGET){
       ARI[l, h] <- max(ari)
@@ -275,17 +303,17 @@ for(l in 1:length(lambda_vect)){
     
     # Clustering refined
     if(REFINE){
-      clustering[[l]][[h]]$refined <- clusterlabel_refine
-      ari_refined <- rep("?", length(knearest_vect))
+      clustering[[lambda_vect_names[l]]][[npc_vect_names[h]]]$refined <- clusterlabel_refine
+      ari_refined <- rep(0, length(knearest_vect))
       for(i in 1:length(knearest_vect)){
         title <- paste("knn =",knearest_vect[i])
         if(TARGET){
-          ari_refined[i] <- adjustedRandIndex(target, clusterlabel_refine[[i]])
-          title <- paste(title, "-", "ARI =", round(ari_refined[i], digit = 2))
+          ari_refined[i] <- adjustedRandIndex(target, clusterlabel_refine[[knearest_vect_names[i]]])[1]
+          title <- paste(title, "-", "ARI =", round(ari_refined[i], digit = 3))
         }
         plots[[i]] <- plot_cluster(legend="none",location=locations,
-                                   clusterlabel_refine[[i]],
-                                   pointsize=1,text_size=20,
+                                   clusterlabel_refine[[knearest_vect_names[i]]],
+                                   pointsize=pointsize,text_size=20,
                                    title_in=title,
                                    color_in=cbp)
   
@@ -294,11 +322,11 @@ for(l in 1:length(lambda_vect)){
       nCol <- floor(sqrt(n))
       plot <- do.call("grid.arrange", c(plots, ncol=nCol))
       ggsave(paste(images_test.directory, "clustering_refined_npc", npc, ".jpg", sep = ""),
-             plot = plot, width = 16, height = 16, dpi = 300)
+             plot = plot, width = 16, height = 18, dpi = 300)
     
       if(TARGET){
         ARI_refined[l, h] <- max(ari_refined)
-        best_knn_refined[l, h] <- knearest_vect[which(ari_refined == max(ari_refined))]
+        best_knn_refined[l, h] <- knearest_vect[which(ari_refined == max(ari_refined))][1]
       }
     }
     
@@ -331,18 +359,14 @@ if (!file.exists(results.directory)){
   dir.create(results.directory)
 }
 
-save(lambda_vect, npc_vect,
+save(lambda_vect, lambda_vect_names, npc_vect, npc_vect_names,
+     knearest_vect, knearest_vect_names, clusternum, clustering.algorithm.name,
      principal_components,
      clustering,
+     target,
+     locations,
      time,
      ARI, best_knn,
      ARI_refined, best_knn_refined,
      file = paste(results.directory, "results_", test.name, "_", format(Sys.time(), "_%Y%m%d_%H%M%S"), ".RData", sep = ""))
-
-
-
-
-
-
-
 
