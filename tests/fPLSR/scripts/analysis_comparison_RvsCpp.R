@@ -65,11 +65,11 @@ N.batches <- 10
 N.generated <- max(N_vect*N.batches)
 
 # Data options
-X.index_vect <- c(1) # 2
+X.index_vect <- c(1) 
 X.index_vect_names = paste("xi", X.index_vect, sep = "")
 
 # Responses
-B.index_vect <- c(1) #, 2, 3, 4, 5) 
+B.index_vect <- c(1,3)
 B.index_vect_names = paste("bi", B.index_vect, sep = "")
 
 # Options
@@ -407,6 +407,8 @@ for(i in 1:dim(test.options)[1]){
     }
     
   }
+  
+  rm(data)
 
 }
 

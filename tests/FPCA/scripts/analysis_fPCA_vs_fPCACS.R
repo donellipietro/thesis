@@ -44,10 +44,10 @@ images.directory <- "images/fPCA_vs_fPCACS/"
 
 
 # Number of nodes (on the side)
-n.nodes_vect <- c(10, 20, 30, 40, 50)
+n.nodes_vect <- c(10, 20, 30, 40, 60)
 
 # Test options
-N_vect <- c(50, 75, 100, 150, 200, 300, 400, 600, 800, 1200, 1600)
+N_vect <- c(50, 75, 100, 150, 200, 300, 400, 600, 800)
 
 # Number of statistical units
 N <- max(N_vect)

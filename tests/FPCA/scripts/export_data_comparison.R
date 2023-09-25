@@ -10,12 +10,12 @@ if (!file.exists(dir)){
 ################################################################################
 
 N <- 400
-load("data/fPCA_vs_fPCACS/data_nnodes30.RData")
+load("data/fPCA_vs_fPCACS/data_nnodes10.RData")
 
 X <- data_centered[1:N, ]
 locations <- locations
 
-dir <- paste("data/fPCA_vs_fPCACS/comparison_test/", "mesh30/", sep = '')
+dir <- paste("data/fPCA_vs_fPCACS/comparison_test/", "mesh10/", sep = '')
 if (!file.exists(dir)){
   dir.create(dir)
 }
@@ -31,19 +31,19 @@ if (!file.exists(dir)){
   dir.create(dir)
 }
 
-write.csv(X, paste(dir, "X30.csv", sep = ''))
-write.csv(locations, paste(dir, "locations30.csv", sep = ''))
+write.csv(X, paste(dir, "X10.csv", sep = ''))
+write.csv(locations, paste(dir, "locations10.csv", sep = ''))
 
 
 ################################################################################
 
 N <- 50
-load("data/fPCA_vs_fPCACS/data_nnodes50.RData")
+load("data/fPCA_vs_fPCACS/data_nnodes60.RData")
 
 X <- data_centered[1:N, ]
 locations <- locations
 
-dir <- paste("data/fPCA_vs_fPCACS/comparison_test/", "mesh50/", sep = '')
+dir <- paste("data/fPCA_vs_fPCACS/comparison_test/", "mesh60/", sep = '')
 if (!file.exists(dir)){
   dir.create(dir)
 }
@@ -59,6 +59,6 @@ if (!file.exists(dir)){
   dir.create(dir)
 }
 
-write.csv(X, paste(dir, "X50.csv", sep = ''))
-write.csv(locations, paste(dir, "locations50.csv", sep = ''))
+write.csv(X, paste(dir, "X60.csv", sep = ''))
+write.csv(locations, paste(dir, "locations60.csv", sep = ''))
 
